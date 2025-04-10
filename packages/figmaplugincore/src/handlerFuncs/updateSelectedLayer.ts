@@ -42,6 +42,10 @@ async function getSimplifiedJson(node: SceneNode): Promise<any> {
     "transitionDuration",
     "transitionEasing",
     "transitionNodeID",
+    "fillOverrideTable",
+    "constraints",
+    "strokeAlign",
+    "arcData",
   ]);
   traverse(root, (node) => {
     Object.entries(node).forEach(([key, val]) => {

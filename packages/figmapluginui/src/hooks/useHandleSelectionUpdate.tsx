@@ -28,7 +28,7 @@ export function useHandleSelectionUpdate() {
           (layer) =>
             new ToolMessage(
               toolToToolString("USER_FIGMA_NODE_CONTENTS", {
-                body: JSON.stringify(layer.json),
+                body: JSON.stringify(layer.json, undefined, 2),
                 props: {
                   nodeName: layer.name,
                   nodeId: layer.id,

@@ -6,7 +6,6 @@ import {
 } from "../handlerFuncs/getImageFromSelectedFrame";
 import { handleGetSelectedIds } from "../handlerFuncs/handleGetSelectedIds";
 import { handleResize } from "../handlerFuncs/handleResize";
-import { handleChangeTextColor } from "@figmaplugincore-types/handleFuncsEditFigma/handleChangeTextColor";
 
 export type PluginCoreHandlers = typeof pluginCoreHandlers;
 
@@ -18,5 +17,4 @@ export const pluginCoreHandlers = {
   focusNode: runFocusNode,
   //FIGMA EDITING
   handleChangeColor,
-  handleChangeTextColor,
 } satisfies Record<string, (...args: any[]) => any>;

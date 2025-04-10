@@ -29,7 +29,6 @@ export async function handleChangeColor(data: {
 
   // Apply color based on node type
   if ("fills" in node && Array.isArray(node.fills)) {
-    console.log("RUNNING CHANGE COLOR");
     // For shapes, frames, etc. that have fills
     node.fills = [
       {
@@ -38,5 +37,7 @@ export async function handleChangeColor(data: {
         opacity: aValue,
       },
     ];
+  } else {
+    console.error("NO FILLS FOUND WHAT", node);
   }
 }
