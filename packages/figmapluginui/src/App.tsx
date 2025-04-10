@@ -3,8 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Candy, Moon, Send, SquarePen, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "./trpc/trpc";
-import { Switch } from "@/components/ui/switch";
-import toast from "react-hot-toast";
 import { useEvent } from "./api/createEventListener";
 import { Message, MessageItem, MessageWithID } from "./features/Message";
 import { SelectionDisplay } from "./features/SelectionDisplay";
