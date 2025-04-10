@@ -55,7 +55,7 @@ export const TOOL_TEMPLATES = {
     propDesc: {},
     sampleProps: {},
     sampleBody:
-      "To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. Then, for each of these buttons, update their color to match the main primary color. Finally, to ensure the text on these buttons remain readable, the color of the texts need to be updated as well.",
+      "To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. We should avoid updating the color of buttons which only have outlines, because even though have the same background, they stand out via their outline. Then, for each of these buttons with the bad color rgba(W,X,Y,Z), update their color to match the main primary color rgba(W,X,Y,Z).",
     data: {},
   },
   ASSISTANT_CHANGE_COLOR: {
