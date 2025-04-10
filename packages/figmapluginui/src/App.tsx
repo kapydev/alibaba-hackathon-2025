@@ -1,22 +1,13 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Moon, Send, Sun } from "lucide-react";
+import { Candy, Moon, Send, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "./trpc/trpc";
-import OpenAI from "openai";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import { useEvent } from "./api/createEventListener";
-
-type Message = OpenAI.ChatCompletionMessageParam;
-type MessageWithID = { id: string; content: string } & Message;
+import { Message, MessageItem, MessageWithID } from "./features/Message";
+import { SelectionDisplay } from "./features/SelectionDisplay";
 
 export default function App() {
   const [messages, setMessages] = useState<MessageWithID[]>([]);
@@ -41,7 +32,7 @@ export default function App() {
     if (isDarkMode) {
       root.classList.add("dark");
       localStorage.setItem("darkMode", JSON.stringify(true));
-    } else {  
+    } else {
       root.classList.remove("dark");
       localStorage.setItem("darkMode", JSON.stringify(false));
     }
@@ -125,8 +116,12 @@ export default function App() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-muted p-4 place-items-center relative">
-      <div className="absolute top-5 right-5">
+    <div className="bg-background text-foreground min-h-screen flex flex-col">
+      {/* TITLEBAR */}
+      <div className="space-y-1.5 p-6 border-b flex flex-row justify-between items-center">
+        <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
+          <Candy />
+        </div>
         <div className="flex items-center space-x-2">
           <Switch
             id="dark-mode-switch"
@@ -136,60 +131,44 @@ export default function App() {
           {isDarkMode ? <Moon size={20} /> : <Sun size={19} />}
         </div>
       </div>
-      <Card className="w-full max-w-2xl h-[80vh] flex flex-col">
-        <CardHeader className="border-b flex flex-row justify-between items-center">
-          <CardTitle>AI Chatbot</CardTitle>
-        </CardHeader>
 
-        <CardContent
-          className={`flex-1 m-1 p-4 space-y-4 ${
-            messages.length > 0 && "overflow-y-auto"
-          }`}
-        >
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Send a message to start the conversation
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : message.role === "system"
-                      ? "bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                      : "bg-muted dark:bg-muted/50"
-                  }`}
-                >
-                  {message.content}
-                </div>
-              </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </CardContent>
+      {/* MESSAGE AREA */}
+      <div
+        className={`flex-1 bg-muted p-4 ${
+          messages.length === 0
+            ? "flex items-center justify-center"
+            : "space-y-4 overflow-y-auto"
+        }`}
+      >
+        {messages.length === 0 ? (
+          <p className="text-muted-foreground">
+            Send a message to start the conversation
+          </p>
+        ) : (
+          messages.map((message) => (
+            <MessageItem key={message.id} message={message} />
+          ))
+        )}
+        <div ref={messagesEndRef} />
+      </div>
 
-        <CardFooter className="border-t p-4">
-          <form onSubmit={handleSubmit} className="flex w-full gap-2">
-            <Input
-              value={input}
-              onChange={handleInputChange}
-              placeholder="Type your message..."
-              className="flex-1"
-              disabled={isLoading}
-            />
-            <Button type="submit" size="icon" disabled={isLoading}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
-        </CardFooter>
-      </Card>
+      <SelectionDisplay />
+
+      {/* FOOTER */}
+      <div className="flex items-center border-t p-4">
+        <form onSubmit={handleSubmit} className="flex w-full gap-2">
+          <Input
+            value={input}
+            onChange={handleInputChange}
+            placeholder="Type your message..."
+            className="flex-1"
+            disabled={isLoading}
+          />
+          <Button type="submit" size="icon" disabled={isLoading}>
+            <Send className="h-4 w-4" />
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
