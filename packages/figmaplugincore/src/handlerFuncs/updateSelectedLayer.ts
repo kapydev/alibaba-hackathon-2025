@@ -2,6 +2,7 @@ import { traverse } from "@shared";
 import { sendFrontend } from "../messaging";
 
 export async function updateSelectedLayers() {
+  console.log(figma.currentPage.selection[0]);
   if (figma.currentPage.selection.length === 0) {
     sendFrontend("updateSelectedLayers", []);
     return [];

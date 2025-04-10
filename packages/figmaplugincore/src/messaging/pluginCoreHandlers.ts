@@ -10,6 +10,7 @@ import {
   getSelectedLayersFull,
   updateSelectedLayers,
 } from "@figmaplugincore-types/handlerFuncs/updateSelectedLayer";
+import { handleAnnotateNode } from "@figmaplugincore-types/handleFuncsEditFigma/handleAnnotateNode";
 
 export type PluginCoreHandlers = typeof pluginCoreHandlers;
 
@@ -23,4 +24,5 @@ export const pluginCoreHandlers = {
   getSelectedLayersFull,
   //FIGMA EDITING
   handleChangeColor,
+  handleAnnotateNode,
 } satisfies Record<string, (...args: any[]) => any>;

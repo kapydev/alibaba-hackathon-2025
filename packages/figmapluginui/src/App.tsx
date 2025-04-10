@@ -19,6 +19,7 @@ import {
   resetChatStore,
   updateChatFull,
 } from "./stores/chatStore";
+import { sendMidEnd } from "./api/sendMidEnd";
 
 export default function App() {
   // useHandleSelectionUpdate();
@@ -53,7 +54,16 @@ export default function App() {
         {/* TITLEBAR */}
         <div className="space-y-1.5 p-4 border-b flex flex-row justify-between items-center">
           <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
-            <Candy className="ml-1" size={20} />
+            <Candy
+              className="ml-1"
+              size={20}
+              onClick={() =>
+                sendMidEnd("handleAnnotateNode", {
+                  nodeId: "1:58",
+                  comment: "Hello Annotation!",
+                })
+              }
+            />
           </div>
           <div className="flex items-center space-x-2">
             <Tooltip>
