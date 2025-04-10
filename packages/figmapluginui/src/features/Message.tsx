@@ -1,6 +1,6 @@
 import OpenAI from "openai";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { TOOL_RENDER_TEMPLATES, ToolType } from "../messages/tools";
+import { ToolMessage } from "../messages/ToolMessage";
 
 export type Message = OpenAI.ChatCompletionMessageParam;
 export type MessageWithID = { id: string; content: string } & Message;
@@ -9,8 +9,15 @@ export type MessageItemProps = {
   message: MessageWithID;
 };
 
-export function MessageItem({ message }: MessageItemProps) {
-  const messageClasses = `max-w-[80%] rounded-lg px-4 py-3 ${
+export function MessageItem<T extends ToolType>({
+  message,
+}: {
+  message: ToolMessage<T>;
+}) {
+  if (!message.type) return <></>;
+
+  const renderTemplate = TOOL_RENDER_TEMPLATES[message.type];
+  const messageClasses = `max-w-[80%] rounded-lg px-4 py-2 ${
     message.role === "user"
       ? "bg-primary text-primary-foreground"
       : message.role === "system"
@@ -25,23 +32,9 @@ export function MessageItem({ message }: MessageItemProps) {
       }`}
     >
       <div className={messageClasses}>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            hr: ({ node, ...props }) => (
-              <hr style={{ marginTop: "12px", marginBottom: "12px" }} {...props} />
-            ),
-            pre: ({ node, ...props }) => (
-              <pre
-                {...props}
-                style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}
-              />
-            ),
-          }}
-        >
-          {message.content}
-        </ReactMarkdown>
+        <div className="text-sm">{renderTemplate.title(message)}</div>
+        {renderTemplate.body(message)}
       </div>
     </div>
   );
-};
+}

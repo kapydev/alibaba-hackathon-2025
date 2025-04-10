@@ -4,18 +4,19 @@ import { openai } from "../ai/llm";
 
 export const aiRouter = router({
   chat: publicProcedure
-    .input((val: unknown) => {
-      if (!Array.isArray(val)) {
-        throw new Error("Input must be an array of messages");
-      }
-      return val as OpenAI.ChatCompletionMessageParam[];
+    .input((data: unknown) => {
+      return data as {
+        messages: OpenAI.ChatCompletionMessageParam[];
+        stopSequences: string[];
+      };
     })
     .mutation(async function* ({ input }) {
       console.log(input);
       try {
         const stream = await openai.chat.completions.create({
           model: "qwen-plus",
-          messages: input,
+          messages: input.messages,
+          stop: input.stopSequences,
           stream: true,
         });
 

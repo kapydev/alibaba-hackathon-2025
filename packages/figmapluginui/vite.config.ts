@@ -33,6 +33,14 @@ const ROOT_DIR = appRoot.path;
 // Load environment variables from .env file
 dotenv.config({ path: path.resolve(ROOT_DIR, ".env") });
 
+const DEFINED_PROCESS_ENVS = Object.fromEntries(
+  Object.entries({ ...process.env })
+    .filter(([key, _]) => key.startsWith("VITE"))
+    .flatMap(([key, val]) => {
+      return [[`process.env.${key}`, JSON.stringify(val)]];
+    })
+);
+
 const indexHtmlSpoofPlugin = (): Plugin => {
   let config: UserConfig;
   const getOutDirPath = (config: UserConfig, pathName: string) => {
@@ -175,10 +183,11 @@ const finalConfig = defineConfig(({ command }) => {
       //   ignored: IGNORE_GLOBS,
       // },
     },
-    envDir: appRoot.path,
+    define: { ...DEFINED_PROCESS_ENVS },
     resolve: {
       alias: {
         "@": path.resolve(appRoot.path, "packages/shadcn/src"),
+        "@shared": path.resolve(appRoot.path, "packages/shared/src"),
       },
     },
     plugins: [
