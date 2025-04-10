@@ -1,4 +1,4 @@
-import { PluginCoreHandlers, pluginCoreHandlers } from './pluginCoreHandlers';
+import { PluginCoreHandlers, pluginCoreHandlers } from "./pluginCoreHandlers";
 
 interface Message<K = string> {
   type: K;
@@ -8,18 +8,20 @@ interface Message<K = string> {
 
 export function startPluginHandlers() {
   figma.ui.onmessage = async <K extends keyof PluginCoreHandlers>(
-    msg: Message<K>,
+    msg: Message<K>
   ) => {
     //This condition is because we are using the enterprise API
     //See https://www.firejet.io/docs/enterprise/api-documentation#things-to-note
-    if ('firejetMessage' in msg) return;
+    if ("firejetMessage" in msg) return;
     let result: any;
     let isErr = false;
     try {
       result = await pluginCoreHandlers[msg.type](msg.data);
+      console.log("Success!");
     } catch (e) {
       result = e;
       isErr = true;
+      console.error(e);
     }
     sendFrontend(msg.type, result, msg.reqId, isErr);
   };
@@ -29,17 +31,17 @@ export function handleEventOnce(type: string, handler: (data: any) => void) {
   const listener = (msg: Message) => {
     if (msg.type !== type) return;
     handler(msg.data);
-    figma.ui.off('message', listener);
+    figma.ui.off("message", listener);
   };
 
-  figma.ui.on('message', listener);
+  figma.ui.on("message", listener);
 }
 
 export function sendFrontend(
   type: string,
   data?: any,
   reqId?: number,
-  isErr?: boolean,
+  isErr?: boolean
 ) {
   const payload: Record<string, any> = {
     type,

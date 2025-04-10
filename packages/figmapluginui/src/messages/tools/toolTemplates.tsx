@@ -7,6 +7,7 @@ import {
   WaypointsIcon,
 } from "lucide-react";
 import { ToolMessage } from "../ToolMessage";
+import { sendMidEnd } from "../../api/sendMidEnd";
 
 export type MessageIcon = React.ForwardRefExoticComponent<
   Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
@@ -328,6 +329,11 @@ export const TOOL_RENDER_TEMPLATES: {
       return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
     },
     rules: [],
+    onFocus: (data) => {
+      console.log("HEEE", data.props);
+      if (!data.props) return;
+      sendMidEnd("handleChangeColor", data.props);
+    },
   },
   ASSISTANT_CHANGE_TEXT_COLOR: {
     Icon: BotIcon,
@@ -339,6 +345,10 @@ export const TOOL_RENDER_TEMPLATES: {
       return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
     },
     rules: [],
+    onFocus: (data) => {
+      if (!data.props) return;
+      sendMidEnd("handleChangeTextColor", data.props);
+    },
   },
   // USER_FILE_SEARCH_RESULT: {
   //   Icon: UserIcon,
