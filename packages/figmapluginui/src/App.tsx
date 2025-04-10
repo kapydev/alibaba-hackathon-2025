@@ -11,6 +11,7 @@ import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "./trpc/trpc";
 import OpenAI from "openai";
+import { useEvent } from "./api/createEventListener";
 type Message = OpenAI.ChatCompletionMessageParam;
 type MessageWithID = { id: string; content: string } & Message;
 
@@ -19,6 +20,10 @@ export default function App() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEvent("updateSelectedLayers", (layers) => {
+    console.log(layers);
+  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

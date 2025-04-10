@@ -9,6 +9,7 @@
       "@backend": ["packages/backend/src/index"],
       "@shared": ["packages/shared/src/index"],
       "@types": ["packages/types/src/index"],
+      "@figmaplugincore-types/*": ["packages/figmaplugincore/src/*"],
       "@/*": ["packages/shadcn/src/*"]
     },
     "strict": true,
