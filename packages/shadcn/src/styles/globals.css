@@ -133,7 +133,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-border;
+    @apply bg-muted-foreground/20;
     border-radius: var(--radius-lg);
   }
 
