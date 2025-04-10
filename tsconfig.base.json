@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./node_modules/@figma"],
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@backend": ["packages/backend/src/index"],
+      "@shared": ["packages/shared/src/index"],
+      "@types": ["packages/types/src/index"],
+      "@/*": ["packages/shadcn/src/*"]
+    },
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["node_modules", "dist"]
+}

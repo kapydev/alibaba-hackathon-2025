@@ -1,0 +1,9 @@
+{
+  "name": "Taffy",
+  "id": "1492040236290118921",
+  "api": "1.0.0",
+  "ui": "./packages/figmapluginui/dist/index-spoof.html",
+  "main": "./packages/figmaplugincore/dist/main.cjs",
+  "documentAccess": "dynamic-page",
+  "editorType": ["figma"]
+}
