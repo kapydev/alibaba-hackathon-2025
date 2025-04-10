@@ -1,5 +1,6 @@
 import {
   BotIcon,
+  FileInputIcon,
   LucideProps,
   ShieldAlertIcon,
   UserIcon,
@@ -78,17 +79,17 @@ export const TOOL_TEMPLATES = {
       "To prevent .env files from being committed into the codebase, we need to update the .gitignore file.",
     data: {},
   },
-  ASSISTANT_PLANNING: {
-    role: "assistant",
-    desc: "For the assistant to plan how to tackle the task from the user. Reason how to tackle the user's task step by step, placing steps in a logical order. After the planning tool is done, execute the plan. In each step, indicate what tool you will use, and how you will use it",
-    propDesc: {},
-    sampleProps: {},
-    sampleBody: `Example 1:
-    1. Read the src/utils/index.ts and other relevant files to understand what files need to be updated
-    2. Update the src/utils/helloWorld.ts file using ASSISTANT_REPLACE_BLOCK
-    3. Update the barrel file src/utils/index.ts to include the export from helloWorld.ts using ASSISTANT_WRITE_FILE`,
-    data: {},
-  },
+  // ASSISTANT_PLANNING: {
+  //   role: "assistant",
+  //   desc: "For the assistant to plan how to tackle the task from the user. Reason how to tackle the user's task step by step, placing steps in a logical order. After the planning tool is done, execute the plan. In each step, indicate what tool you will use, and how you will use it",
+  //   propDesc: {},
+  //   sampleProps: {},
+  //   sampleBody: `Example 1:
+  //   1. Read the src/utils/index.ts and other relevant files to understand what files need to be updated
+  //   2. Update the src/utils/helloWorld.ts file using ASSISTANT_REPLACE_BLOCK
+  //   3. Update the barrel file src/utils/index.ts to include the export from helloWorld.ts using ASSISTANT_WRITE_FILE`,
+  //   data: {},
+  // },
   //   ASSISTANT_WRITE_FILE: {
   //     role: "assistant",
   //     desc: `Ask the user for permission to create/overwrite a file.  `,
@@ -198,32 +199,20 @@ export const TOOL_TEMPLATES = {
     sampleBody: `Stop commiting .env files into the codebase`,
     data: {},
   },
-  //   USER_FILE_CONTENTS: {
-  //     role: "user",
-  //     desc: "Information from the user regarding the contents of a file. If there are multiple FILE_CONTENTS tool responses, the latest one should be considered as the correct one. If exists is true, the body can be considered the entire contents of the file. Otherwise, the body may consider additional info on the file not existing.",
-  //     propDesc: {
-  //       filePath: "The file path where the contents are from",
-  //       type: "What exists at the specified path",
-  //     },
-  //     sampleProps: {
-  //       filePath: "src/utils/helloWorld.ts",
-  //       type: "file | folder | non-existent",
-  //     },
-  //     sampleBody: `export default function HelloWorld() {
-  //   const name = 'Thomas';
-  //   ${"console"}.log("Hello World");
-  // }
-  // >>>>OR<<<<
-  // Nothing exists at the path
-  // >>>>OR<<<<
-  // The specified path contains a folder with the following sub paths:
-  // src/index.ts
-  // src/README.md
-  // src/components (FOLDER)
-  // src/pages (FOLDER)
-  // `,
-  //     data: {},
-  //   },
+  USER_FIGMA_NODE_CONTENTS: {
+    role: "user",
+    desc: "A JSON representing a node selected in figma.",
+    propDesc: {
+      nodeName: "The name of the node in figma",
+      nodeId: "The id of the node in figma",
+    },
+    sampleProps: {
+      nodeName: "Landing-Desktop",
+      nodeId: "133:221",
+    },
+    sampleBody: `TODO`,
+    data: {},
+  },
   //   USER_FOCUS_BLOCK: {
   //     role: "user",
   //     desc: "A block from the user that specifies a particular section of the code that he has a question about, or he wants to replace. If only a question is asked, just reply the question in the info block. If the user wants the code to be edited, run through the info -> planning -> replace block flow. Make sure to match the original indendation of the line.",
@@ -298,30 +287,30 @@ export const TOOL_RENDER_TEMPLATES: {
   //   content: (data) => data.contents,
   //   rules: [],
   // },
-  ASSISTANT_PLANNING: {
-    Icon: WaypointsIcon,
-    title: () => "Taffy Planning",
-    body: (data) => data.body,
-    content: (data) => data.contents,
-    rules: [
-      {
-        description:
-          "Planning should only come immediately after an assistant info block",
-        check: (messages) => {
-          if (
-            messages.at(-1)?.type === "ASSISTANT_PLANNING" &&
-            messages.at(-2)?.type !== "ASSISTANT_INFO"
-          ) {
-            return (
-              "The latest message is of type ASSISTANT_PLANNING but the previous message is of type " +
-              messages.at(-2)?.type
-            );
-          }
-          return undefined;
-        },
-      },
-    ],
-  },
+  // ASSISTANT_PLANNING: {
+  //   Icon: WaypointsIcon,
+  //   title: () => "Taffy Planning",
+  //   body: (data) => data.body,
+  //   content: (data) => data.contents,
+  //   rules: [
+  //     {
+  //       description:
+  //         "Planning should only come immediately after an assistant info block",
+  //       check: (messages) => {
+  //         if (
+  //           messages.at(-1)?.type === "ASSISTANT_PLANNING" &&
+  //           messages.at(-2)?.type !== "ASSISTANT_INFO"
+  //         ) {
+  //           return (
+  //             "The latest message is of type ASSISTANT_PLANNING but the previous message is of type " +
+  //             messages.at(-2)?.type
+  //           );
+  //         }
+  //         return undefined;
+  //       },
+  //     },
+  //   ],
+  // },
   // ASSISTANT_READ_PATHS: {
   //   Icon: BookPlusIcon,
   //   title: () => "Can I read these files?",
@@ -598,16 +587,16 @@ export const TOOL_RENDER_TEMPLATES: {
   //     },
   //   ],
   // },
-  // USER_FILE_CONTENTS: {
-  //   Icon: FileInputIcon,
-  //   title: () => "File Context Added",
-  //   body: (data) => {
-  //     if (!data.props) return;
-  //     return data.props.filePath;
-  //   },
-  //   content: (data) => data.props?.filePath ?? "",
-  //   rules: [],
-  // },
+  USER_FIGMA_NODE_CONTENTS: {
+    Icon: FileInputIcon,
+    title: () => "File Context Added",
+    body: (data) => {
+      if (!data.props) return;
+      return data.props.nodeName;
+    },
+    content: (data) => data.props?.nodeName ?? "",
+    rules: [],
+  },
   // ASSISTANT_WRITE_FILE: {
   //   Icon: FilePlus2Icon,
   //   title: () => "Shall I update the following file?",

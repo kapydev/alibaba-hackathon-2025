@@ -33,7 +33,10 @@ export function MessageItem<T extends ToolType>({
         message.role === "user" ? "justify-end" : "justify-start"
       }`}
     >
-      <div className={messageClasses}>{renderTemplate.body(message)}</div>
+      <div className={messageClasses}>
+        <div className="text-sm">{renderTemplate.title(message)}</div>
+        {renderTemplate.body(message)}
+      </div>
     </div>
   );
 }

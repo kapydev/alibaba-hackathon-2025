@@ -8,21 +8,20 @@ import {
 } from "@/components/ui/tooltip";
 import { Candy, Moon, Send, SquarePen, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useEvent } from "./api/createEventListener";
-import { Message, MessageItem, MessageWithID } from "./features/Message";
+import { MessageItem } from "./features/Message";
 import { SelectionDisplay } from "./features/SelectionDisplay";
+import { useDarkMode } from "./hooks/useDarkMode";
+import { useHandleSelectionUpdate } from "./hooks/useHandleSelectionUpdate";
+import { ToolMessage } from "./messages/ToolMessage";
 import {
   chatStore,
   continuePrompt,
   resetChatStore,
   updateChatFull,
 } from "./stores/chatStore";
-import { trpc } from "./trpc/trpc";
-import { useDarkMode } from "./hooks/useDarkMode";
-import { toolToToolString } from "./messages/tools";
-import { ToolMessage } from "./messages/ToolMessage";
 
 export default function App() {
+  useHandleSelectionUpdate();
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   const messages = chatStore.use("messages");
   const isLoading = chatStore.use("isLoading");
