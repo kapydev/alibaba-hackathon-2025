@@ -145,7 +145,26 @@ export const TOOL_RENDER_TEMPLATES: {
           pre: ({ node, ...props }) => (
             <pre
               {...props}
-              style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}
+              style={{
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                backgroundColor: "black",
+                color: "white",
+              }}
+            />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc ml-6 my-4"
+              style={{ marginBottom: "12px" }}
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ul
+              className="list-decimal ml-6 my-4"
+              style={{ marginBottom: "12px" }}
+              {...props}
             />
           ),
         }}
