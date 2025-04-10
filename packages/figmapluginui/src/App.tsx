@@ -7,10 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Moon, Send, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "./trpc/trpc";
 import OpenAI from "openai";
+import { Switch } from "@/components/ui/switch";
+import toast from "react-hot-toast";
+
 type Message = OpenAI.ChatCompletionMessageParam;
 type MessageWithID = { id: string; content: string } & Message;
 
@@ -19,6 +22,29 @@ export default function App() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      toast.success("Switched to dark mode!");
+    } else {
+      toast.success("Switched to light mode!");
+    }
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDarkMode) {
+      root.classList.add("dark");
+      localStorage.setItem("darkMode", JSON.stringify(true));
+    } else {  
+      root.classList.remove("dark");
+      localStorage.setItem("darkMode", JSON.stringify(false));
+    }
+  }, [isDarkMode]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -94,13 +120,27 @@ export default function App() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4 grid place-items-center">
-      <Card className="w-full w-2xl h-[80vh] flex flex-col">
-        <CardHeader className="border-b">
+    <div className="flex items-center justify-center min-h-screen bg-muted p-4 place-items-center relative">
+      <div className="absolute top-5 right-5">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="dark-mode-switch"
+            checked={isDarkMode}
+            onCheckedChange={setIsDarkMode}
+          />
+          {isDarkMode ? <Moon size={20} /> : <Sun size={19} />}
+        </div>
+      </div>
+      <Card className="w-full max-w-2xl h-[80vh] flex flex-col">
+        <CardHeader className="border-b flex flex-row justify-between items-center">
           <CardTitle>AI Chatbot</CardTitle>
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+        <CardContent
+          className={`flex-1 m-1 p-4 space-y-4 ${
+            messages.length > 0 && "overflow-y-auto"
+          }`}
+        >
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               Send a message to start the conversation
@@ -118,8 +158,8 @@ export default function App() {
                     message.role === "user"
                       ? "bg-primary text-primary-foreground"
                       : message.role === "system"
-                      ? "bg-gray-300 text-gray-800"
-                      : "bg-muted"
+                      ? "bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                      : "bg-muted dark:bg-muted/50"
                   }`}
                 >
                   {message.content}
