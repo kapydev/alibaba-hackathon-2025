@@ -46,12 +46,40 @@ async function getSimplifiedJson(node: SceneNode): Promise<any> {
     "constraints",
     "strokeAlign",
     "arcData",
+    "counterAxisAlignItems",
+    "primaryAxisAlignItems",
+    "layoutWrap",
+    "layoutMode",
+    "layoutGrow",
+    "layoutAlign",
+    "lineTypes",
+    "lineIndentations",
+    "styleOverrideTable",
+    "characterStyleOverrides",
+    "layoutSizingHorizontal",
+    "layoutSizingVertical",
+    "rotation",
   ]);
+  const TYPE_STYLE_USELESS_KEYS = [
+    "textAutoResize",
+    "textAlignHorizontal",
+    "textAlignVertical",
+    "letterSpacing",
+    "lineHeightPx",
+    "lineHeightPercent",
+    "lineHeightPercentFontSize",
+    "lineHeightUnit",
+  ];
   traverse(root, (node) => {
     Object.entries(node).forEach(([key, val]) => {
       if (USELESS_KEYS.has(key)) {
         delete node[key];
         return;
+      }
+      if (key === "style") {
+        for (const uselessTypeStyleKey of TYPE_STYLE_USELESS_KEYS) {
+          delete node.style[uselessTypeStyleKey];
+        }
       }
     });
   });

@@ -77,12 +77,12 @@ export const TOOL_TEMPLATES = {
     propDesc: {},
     sampleProps: {},
     sampleBody:
-      "The color of the buttons on your page are too similar to the background, making them hard to see.",
+      "To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. Then, for each of these buttons, update their color to match the main primary color. Finally, to ensure the text on these buttons remain readable, the color of the texts need to be updated as well.",
     data: {},
   },
   ASSISTANT_CHANGE_COLOR: {
     role: "assistant",
-    desc: "Change the background color of a figma node by id",
+    desc: "Change the background color of a figma node or text by id",
     propDesc: {
       nodeId: "nodeId",
       r: "red",
@@ -182,6 +182,7 @@ export const TOOL_RENDER_TEMPLATES: {
     },
     rules: [],
     onFocus: (data) => {
+      console.log("HANDLING CHANGE COLOR", data.props);
       if (!data.props) return;
       sendMidEnd("handleChangeColor", data.props);
     },
