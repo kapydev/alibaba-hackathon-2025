@@ -1,8 +1,6 @@
 import {
-  CompletionMode,
-  getInlineStopSequence,
-  getLatestFocusedContent,
   chatStore,
+  CompletionMode,
   getToolMessagesWithoutErrors,
 } from "../stores/chatStore";
 import {
@@ -11,7 +9,6 @@ import {
   ToolMessage,
 } from "./ToolMessage";
 import {
-  getToolEndString,
   TOOL_RENDER_TEMPLATES,
   TOOL_TEMPLATES,
   toolToToolString,
@@ -32,25 +29,25 @@ export class LLMOutputParser {
     }
     if (this.earlyExit) return;
     //If we completed generation in inline mode need to auto complete the remaining text
-    if (mode.includes("inline")) {
-      const inlineStopSeq = await getInlineStopSequence();
-      const toolEndStr = getToolEndString("ASSISTANT_WRITE_FILE");
-      //If LLM already outputted the toolEndStr, don't append stuff
-      if (inlineStopSeq && !curLine.includes(toolEndStr)) {
-        const latestFileContent = await getLatestFocusedContent();
-        if (!latestFileContent) {
-          throw new Error("Expected latest file content");
-        }
-        const remainder =
-          inlineStopSeq +
-          latestFileContent.postSelection
-            .split(inlineStopSeq)
-            .slice(1)
-            .join(inlineStopSeq);
-        curLine += remainder;
-        curLine += toolEndStr;
-      }
-    }
+    // if (mode.includes("inline")) {
+    //   const inlineStopSeq = await getInlineStopSequence();
+    //   const toolEndStr = getToolEndString("ASSISTANT_WRITE_FILE");
+    //   //If LLM already outputted the toolEndStr, don't append stuff
+    //   if (inlineStopSeq && !curLine.includes(toolEndStr)) {
+    //     const latestFileContent = await getLatestFocusedContent();
+    //     if (!latestFileContent) {
+    //       throw new Error("Expected latest file content");
+    //     }
+    //     const remainder =
+    //       inlineStopSeq +
+    //       latestFileContent.postSelection
+    //         .split(inlineStopSeq)
+    //         .slice(1)
+    //         .join(inlineStopSeq);
+    //     curLine += remainder;
+    //     curLine += toolEndStr;
+    //   }
+    // }
     if (curLine) {
       this.parse(curLine);
     }
