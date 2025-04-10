@@ -4,11 +4,12 @@ import {
   LucideProps,
   ShieldAlertIcon,
   UserIcon,
-  WaypointsIcon,
 } from "lucide-react";
 import { ToolMessage } from "../ToolMessage";
 import { sendMidEnd } from "../../api/sendMidEnd";
 
+import remarkGfm from "remark-gfm";
+import ReactMarkdown from "react-markdown";
 export type MessageIcon = React.ForwardRefExoticComponent<
   Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
 >;
@@ -47,30 +48,7 @@ export interface ToolTemplate {
   data: object;
 }
 
-/**
- * Prompt Engineering Guidelines:
- * CoT - Ask LLM to explain thought process step by step for better outputs
- * Citations - By asking LLM for citation, we can run a bullshit detector using regex
- * Prefer positives - Instead of saying `DO NOT DO XXX`, which places a focus on XXX cos that's how attention models work, say `DO YYY`. Negatives are okay from time to time but if you can put both you might as well
- * Avoid controlling termination behaviour - the models can't control themselves if you ask them `STOP GENERATING AFTER YYY`. Use stop sequences instead, or if you use xml tags, with rules, they can recognise that as a reason to stop
- * Common terminology - Instead of using uncommon terminology like 'planning block' and 'fence blocks', stick to what is common for the LLM to have a better understanding of the rules, like 'thinking blocks' and 'xml tags'
- *
- * Prompt Engineering Ideas:
- * Switch from fence blocks to XML tags <taffythinking> for example
- * Make language positive instead of negative
- * Fail fallback to repeat prompt if output is not parsable
- * Rename planning block to thinking block
- * Add more files in folder to context automatically
- * Add diagnositcs to context automatically
- * Add typescript types to context automatically - To what depth?
- * Add token limit registrar to context adder
- * Explicitly state indentation for replace block flow
- * Fix assistant read file
- * Rule follower - make sure LLM output follows rules at every step otherwise restart prompting
- */
-
 export const TOOL_TEMPLATES = {
-  //ASSISTANT TOOLS
   ASSISTANT_INFO: {
     role: "assistant",
     desc: "For the assistant to write a response to the user.",
@@ -132,6 +110,11 @@ export const TOOL_TEMPLATES = {
   },
 } satisfies Record<string, ToolTemplate>;
 
+export const NON_RENDERED_TOOLS: ToolType[] = [
+  "USER_FIGMA_NODE_CONTENTS",
+  "USER_TOOL_ERROR",
+];
+
 type ToolAction<ToolName extends ToolType> = (
   message: ToolMessage<ToolName>
 ) => void;
@@ -157,6 +140,7 @@ export type ToolRenderTemplate<ToolName extends ToolType> = {
 export const TOOL_RENDER_TEMPLATES: {
   [ToolName in ToolType]: ToolRenderTemplate<ToolName>;
 } = {
+  // What user said
   USER_PROMPT: {
     Icon: UserIcon,
     title: () => "You",
@@ -164,10 +148,51 @@ export const TOOL_RENDER_TEMPLATES: {
     content: (data) => data.contents,
     rules: [],
   },
+  // What Taffy said
   ASSISTANT_INFO: {
     Icon: BotIcon,
     title: () => "Taffy",
-    body: (data) => data.body,
+    body: (data) => (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          hr: ({ node, ...props }) => (
+            <hr
+              style={{ marginTop: "12px", marginBottom: "12px" }}
+              {...props}
+            />
+          ),
+          pre: ({ node, ...props }) => (
+            <pre
+              {...props}
+              style={{
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-all",
+                backgroundColor: "black",
+                color: "white",
+              }}
+            />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              className="list-disc ml-6 my-4"
+              style={{ marginBottom: "12px" }}
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ul
+              className="list-decimal ml-6 my-4"
+              style={{ marginBottom: "12px" }}
+              {...props}
+            />
+          ),
+        }}
+      >
+        {data.body}
+      </ReactMarkdown>
+    ),
+
     content: (data) => data.contents,
     rules: [],
   },
@@ -194,6 +219,7 @@ export const TOOL_RENDER_TEMPLATES: {
     content: (data) => data.contents,
     rules: [],
   },
+  // Figma node contents
   USER_FIGMA_NODE_CONTENTS: {
     Icon: FileInputIcon,
     title: () => "Figma Node Added",
