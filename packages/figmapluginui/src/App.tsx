@@ -1,25 +1,40 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Candy, Moon, Send, SquarePen, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "./trpc/trpc";
-import OpenAI from "openai";
+import { Switch } from "@/components/ui/switch";
+import toast from "react-hot-toast";
 import { useEvent } from "./api/createEventListener";
-type Message = OpenAI.ChatCompletionMessageParam;
-type MessageWithID = { id: string; content: string } & Message;
+import { Message, MessageItem, MessageWithID } from "./features/Message";
+import { SelectionDisplay } from "./features/SelectionDisplay";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function App() {
   const [messages, setMessages] = useState<MessageWithID[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const savedMode = localStorage.getItem("darkMode");
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (isDarkMode) {
+      root.classList.add("dark");
+      localStorage.setItem("darkMode", JSON.stringify(true));
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("darkMode", JSON.stringify(false));
+    }
+  }, [isDarkMode]);
 
   useEvent("updateSelectedLayers", (layers) => {
     console.log(layers);
@@ -99,43 +114,69 @@ export default function App() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4 grid place-items-center">
-      <Card className="w-full w-2xl h-[80vh] flex flex-col">
-        <CardHeader className="border-b">
-          <CardTitle>AI Chatbot</CardTitle>
-        </CardHeader>
+    <TooltipProvider>
+      <div className="bg-background text-foreground h-screen flex flex-col">
+        {/* TITLEBAR */}
+        <div className="space-y-1.5 p-4 border-b flex flex-row justify-between items-center">
+          <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
+            <Candy className="ml-1" size={20} />
+          </div>
+          <div className="flex items-center space-x-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMessages([])}
+                >
+                  <SquarePen />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>New chat</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                >
+                  {isDarkMode ? <Moon /> : <Sun />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle dark mode</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
 
-        <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* MESSAGE AREA */}
+        <div
+          className={`flex-1 bg-muted p-4 overflow-y-auto ${
+            messages.length === 0
+              ? "flex items-center justify-center"
+              : "space-y-4"
+          }`}
+        >
           {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
+            <p className="text-muted-foreground">
               Send a message to start the conversation
-            </div>
+            </p>
           ) : (
             messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div
-                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : message.role === "system"
-                      ? "bg-gray-300 text-gray-800"
-                      : "bg-muted"
-                  }`}
-                >
-                  {message.content}
-                </div>
-              </div>
+              <MessageItem key={message.id} message={message} />
             ))
           )}
           <div ref={messagesEndRef} />
-        </CardContent>
+        </div>
 
-        <CardFooter className="border-t p-4">
+        <SelectionDisplay />
+
+        {/* FOOTER */}
+        <div className="flex items-center border-t p-4">
           <form onSubmit={handleSubmit} className="flex w-full gap-2">
             <Input
               value={input}
@@ -144,12 +185,19 @@ export default function App() {
               className="flex-1"
               disabled={isLoading}
             />
-            <Button type="submit" size="icon" disabled={isLoading}>
-              <Send className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button type="submit" size="icon" disabled={isLoading}>
+                  <Send className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Send message</p>
+              </TooltipContent>
+            </Tooltip>
           </form>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 }
