@@ -45,6 +45,7 @@ export default function App() {
     if (!input.trim() || isLoading) return;
     await updateChatFull(input);
     continuePrompt("full");
+    setInput("");
   };
 
   return (
@@ -100,9 +101,13 @@ export default function App() {
               Send a message to start the conversation
             </p>
           ) : (
-            messages.map((message) => (
-              <MessageItem key={message.id} message={message} />
-            ))
+            messages.map((message) =>
+              message instanceof ToolMessage ? (
+                <MessageItem key={message.id} message={message} />
+              ) : (
+                <></>
+              )
+            )
           )}
           <div ref={messagesEndRef} />
         </div>
