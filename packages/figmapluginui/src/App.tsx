@@ -160,8 +160,8 @@ export default function App() {
           }`}
         >
           {messages.length === 0 ? (
-            <p className="text-muted-foreground">
-              Send a message to start the conversation
+            <p className="text-muted-foreground text-center">
+              Select layers to add context
             </p>
           ) : (
             messages.map((message) => (
@@ -179,7 +179,7 @@ export default function App() {
             <Input
               value={input}
               onChange={handleInputChange}
-              placeholder="Type your message..."
+              placeholder="Send a message to start the conversation..."
               className="flex-1"
               disabled={isLoading}
             />
