@@ -23,8 +23,6 @@ export async function sendMidEnd<
 >(type: Type, ...data: Data) {
   reqId += 1;
 
-  console.log("SENDING MIDEND", type, data);
-
   parent.postMessage(
     {
       pluginMessage: {

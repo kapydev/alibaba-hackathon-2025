@@ -17,7 +17,6 @@ export function startPluginHandlers() {
     let isErr = false;
     try {
       result = await pluginCoreHandlers[msg.type](msg.data);
-      console.log("Success!");
     } catch (e) {
       result = e;
       isErr = true;

@@ -1,8 +1,6 @@
 import path from "path";
 import appRoot from "app-root-path";
 
-console.log("NDOIWQNDOIWQNOIDWQNQ");
-
 export default {
   content: [
     path.join(appRoot.path, "packages/**/*.{js,ts,jsx,tsx}"),

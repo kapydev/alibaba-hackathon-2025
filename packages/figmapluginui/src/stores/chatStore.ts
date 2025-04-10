@@ -76,7 +76,7 @@ export async function updateChatFull(input: string) {
     relevantMessages.push(
       new ToolMessage(
         toolToToolString("USER_FIGMA_NODE_CONTENTS", {
-          body: JSON.stringify(layer.json, undefined, 2),
+          body: layer.nodeString,
           props: {
             nodeName: layer.name,
             nodeId: layer.id,
@@ -128,8 +128,6 @@ export async function continuePrompt(
       }
     }
   } finally {
-    console.log("FINAL RAW MESSAGES");
-    console.log(getRawMessages(chatStore.get("messages")));
     chatStore.set("isLoading", false);
   }
 }

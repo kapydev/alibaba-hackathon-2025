@@ -34,7 +34,7 @@ const buildOptions = {
   entryPoints: ["src/index.ts"],
   bundle: true,
   platform: "browser",
-  target: ["es2018"],
+  target: ["es2016"],
   format: "cjs",
   outfile: "dist/main.cjs",
   define: DEFINED_PROCESS_ENVS,

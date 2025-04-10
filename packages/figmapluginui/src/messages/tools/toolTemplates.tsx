@@ -207,7 +207,6 @@ export const TOOL_RENDER_TEMPLATES: {
     },
     rules: [],
     onFocus: (data) => {
-      console.log("HANDLING CHANGE COLOR", data.props);
       if (!data.props) return;
       sendMidEnd("handleChangeColor", data.props);
     },

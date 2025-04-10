@@ -83,14 +83,12 @@ export class LLMOutputParser {
     }
 
     latestMsg.contents += `${line}\n`;
-    console.log({ toolEndMatch, type: latestMsg.type });
 
     if (
       toolEndMatch &&
       latestMsg.type &&
       TOOL_RENDER_TEMPLATES[latestMsg.type].onFocus
     ) {
-      console.log("ON FOCUSED");
       TOOL_RENDER_TEMPLATES[latestMsg.type].onFocus?.(latestMsg as any);
       //TODO: Stop parsing until user finishes focus action
     }
