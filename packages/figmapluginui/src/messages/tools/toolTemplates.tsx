@@ -79,6 +79,46 @@ export const TOOL_TEMPLATES = {
       "To prevent .env files from being committed into the codebase, we need to update the .gitignore file.",
     data: {},
   },
+  ASSISTANT_CHANGE_COLOR: {
+    role: "assistant",
+    desc: "Change the background color of a figma node by id",
+    propDesc: {
+      nodeId: "nodeId",
+      r: "red",
+      g: "green",
+      b: "blue",
+      a: "alpha",
+    },
+    sampleProps: {
+      nodeId: "123456789",
+      r: "0.5",
+      g: "0.7",
+      b: "0.9",
+      a: "1.0",
+    },
+    sampleBody: "",
+    data: {},
+  },
+  ASSISTANT_CHANGE_TEXT_COLOR: {
+    role: "assistant",
+    desc: "Change the text color of a figma node by id",
+    propDesc: {
+      nodeId: "nodeId",
+      r: "red",
+      g: "green",
+      b: "blue",
+      a: "alpha",
+    },
+    sampleProps: {
+      nodeId: "123456789",
+      r: "0.2",
+      g: "0.3",
+      b: "0.8",
+      a: "1.0",
+    },
+    sampleBody: "",
+    data: {},
+  },
   // ASSISTANT_PLANNING: {
   //   role: "assistant",
   //   desc: "For the assistant to plan how to tackle the task from the user. Reason how to tackle the user's task step by step, placing steps in a logical order. After the planning tool is done, execute the plan. In each step, indicate what tool you will use, and how you will use it",
@@ -276,6 +316,28 @@ export const TOOL_RENDER_TEMPLATES: {
     title: () => "Taffy",
     body: (data) => data.body,
     content: (data) => data.contents,
+    rules: [],
+  },
+  ASSISTANT_CHANGE_COLOR: {
+    Icon: BotIcon,
+    title: () => "Change color",
+    content: (data) => data.body,
+    body: (data) => {
+      if (!data.props) return "";
+      const { nodeId, r, g, b, a } = data.props;
+      return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
+    },
+    rules: [],
+  },
+  ASSISTANT_CHANGE_TEXT_COLOR: {
+    Icon: BotIcon,
+    title: () => "Change text color",
+    content: (data) => data.body,
+    body: (data) => {
+      if (!data.props) return "";
+      const { nodeId, r, g, b, a } = data.props;
+      return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
+    },
     rules: [],
   },
   // USER_FILE_SEARCH_RESULT: {
