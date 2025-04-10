@@ -2,7 +2,14 @@ import * as esbuild from "esbuild";
 import { spawn } from "child_process";
 import dotenv from "dotenv";
 import appRoot from "app-root-path";
-import path from "path";
+import { fileURLToPath } from "url";
+import path, { dirname } from "path";
+
+// __filename equivalent
+const __filename = fileURLToPath(import.meta.url);
+
+// __dirname equivalent
+const __dirname = dirname(__filename);
 
 const env = dotenv.config({
   path: path.resolve(appRoot.path, ".env"),
@@ -32,6 +39,7 @@ const buildOptions = {
   outfile: "dist/main.cjs",
   define: DEFINED_PROCESS_ENVS,
   plugins: [runAfterBuildPlugin],
+  inject: [path.resolve(__dirname, "./esbuild/globalShims.js")],
 };
 
 const command = process.argv[2];
