@@ -23,6 +23,8 @@ export async function sendMidEnd<
 >(type: Type, ...data: Data) {
   reqId += 1;
 
+  console.log("SENDING MIDEND", type, data);
+
   parent.postMessage(
     {
       pluginMessage: {
@@ -31,7 +33,7 @@ export async function sendMidEnd<
         reqId,
       },
       //TODO: Should probably not hard code this but I think it won't change
-      pluginId: "1087200717679287673",
+      pluginId: "1492040236290118921",
     },
     "*"
   );

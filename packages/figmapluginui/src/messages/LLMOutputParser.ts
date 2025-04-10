@@ -65,12 +65,15 @@ export class LLMOutputParser {
   parseLine(line: string) {
     //The tool matches are more fuzzy than the actual instructions given to the models, to try to render as far as possible.
     const toolStartMatch = line.match(TOOL_START_MATCH_REGEX);
-    const toolEndMatch = line.match(TOOL_END_MATCH_REGEX);
+    let toolEndMatch = Boolean(line.match(TOOL_END_MATCH_REGEX));
     if (toolStartMatch) {
       chatStore.set("messages", [
         ...chatStore.get("messages"),
         new ToolMessage(),
       ]);
+
+      //Sometimes the LLM forgets to put in the end match and starts a new line, so we just help it
+      toolEndMatch = true;
     }
 
     const toolMsgs = getToolMessagesWithoutErrors();
@@ -80,12 +83,14 @@ export class LLMOutputParser {
     }
 
     latestMsg.contents += `${line}\n`;
+    console.log({ toolEndMatch, type: latestMsg.type });
 
     if (
       toolEndMatch &&
       latestMsg.type &&
       TOOL_RENDER_TEMPLATES[latestMsg.type].onFocus
     ) {
+      console.log("ON FOCUSED");
       TOOL_RENDER_TEMPLATES[latestMsg.type].onFocus?.(latestMsg as any);
       //TODO: Stop parsing until user finishes focus action
     }

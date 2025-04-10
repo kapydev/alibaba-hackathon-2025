@@ -101,6 +101,8 @@ export async function continuePrompt(
       }
     }
   } finally {
+    console.log("FINAL RAW MESSAGES");
+    console.log(getRawMessages(chatStore.get("messages")));
     chatStore.set("isLoading", false);
   }
 }

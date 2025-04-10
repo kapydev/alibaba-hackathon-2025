@@ -6,6 +6,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import { ToolMessage } from "../ToolMessage";
+import { sendMidEnd } from "../../api/sendMidEnd";
 
 import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
@@ -50,11 +51,31 @@ export interface ToolTemplate {
 export const TOOL_TEMPLATES = {
   ASSISTANT_INFO: {
     role: "assistant",
-    desc: "For the assistant to write a response to the user. Every response to the user should start with an assistant info block.",
+    desc: "For the assistant to write a response to the user.",
     propDesc: {},
     sampleProps: {},
     sampleBody:
-      "To prevent .env files from being committed into the codebase, we need to update the .gitignore file.",
+      "To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. Then, for each of these buttons, update their color to match the main primary color. Finally, to ensure the text on these buttons remain readable, the color of the texts need to be updated as well.",
+    data: {},
+  },
+  ASSISTANT_CHANGE_COLOR: {
+    role: "assistant",
+    desc: "Change the background color of a figma node or text by id",
+    propDesc: {
+      nodeId: "nodeId",
+      r: "red",
+      g: "green",
+      b: "blue",
+      a: "alpha",
+    },
+    sampleProps: {
+      nodeId: "123456789",
+      r: "0.5",
+      g: "0.7",
+      b: "0.9",
+      a: "1.0",
+    },
+    sampleBody: "",
     data: {},
   },
   USER_TOOL_ERROR: {
@@ -62,8 +83,7 @@ export const TOOL_TEMPLATES = {
     desc: "Information regarding incorrect tool usage. The occurence of this indicates a previous generation produced a result that did not follow a particular rule. Take extra notice of the rule that was not followed correctly in subsequent generations",
     propDesc: {},
     sampleProps: {},
-    sampleBody:
-      "We tried to write to a file without first reading the contents",
+    sampleBody: "You cannot change the color of a node that does not exist",
     data: {},
   },
   USER_PROMPT: {
@@ -71,15 +91,15 @@ export const TOOL_TEMPLATES = {
     desc: "The prompt from the user",
     propDesc: {},
     sampleProps: {},
-    sampleBody: `Stop commiting .env files into the codebase`,
+    sampleBody: `How can I improve my figma design?`,
     data: {},
   },
   USER_FIGMA_NODE_CONTENTS: {
     role: "user",
     desc: "A JSON representing a node selected in figma.",
     propDesc: {
-      nodeName: "The name of the node in figma",
-      nodeId: "The id of the node in figma",
+      nodeName: "Node Name",
+      nodeId: "Node ID",
     },
     sampleProps: {
       nodeName: "Landing-Desktop",
@@ -176,7 +196,22 @@ export const TOOL_RENDER_TEMPLATES: {
     content: (data) => data.contents,
     rules: [],
   },
-  // Taffy in error
+  ASSISTANT_CHANGE_COLOR: {
+    Icon: BotIcon,
+    title: () => "Change color",
+    content: (data) => data.body,
+    body: (data) => {
+      if (data.props === undefined) return "";
+      const { nodeId, r, g, b, a } = data.props;
+      return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
+    },
+    rules: [],
+    onFocus: (data) => {
+      console.log("HANDLING CHANGE COLOR", data.props);
+      if (!data.props) return;
+      sendMidEnd("handleChangeColor", data.props);
+    },
+  },
   USER_TOOL_ERROR: {
     Icon: ShieldAlertIcon,
     title: () => "Tool error",
