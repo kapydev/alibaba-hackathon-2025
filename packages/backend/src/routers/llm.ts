@@ -22,6 +22,7 @@ export const aiRouter = router({
 
         for await (const chunk of stream) {
           const content = chunk.choices[0]?.delta?.content || "";
+          process.stdout.write(content);
           yield { content };
         }
       } catch (error) {

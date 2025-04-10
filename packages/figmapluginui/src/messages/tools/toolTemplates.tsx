@@ -176,7 +176,7 @@ export const TOOL_RENDER_TEMPLATES: {
     title: () => "Change color",
     content: (data) => data.body,
     body: (data) => {
-      if (!data.props) return "";
+      if (data.props === undefined) return "";
       const { nodeId, r, g, b, a } = data.props;
       return `${nodeId} : rgba(${r}, ${g}, ${b}, ${a})`;
     },
