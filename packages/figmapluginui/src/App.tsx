@@ -13,6 +13,7 @@ import { trpc } from "./trpc/trpc";
 import OpenAI from "openai";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
+import { useEvent } from "./api/createEventListener";
 
 type Message = OpenAI.ChatCompletionMessageParam;
 type MessageWithID = { id: string; content: string } & Message;
@@ -45,6 +46,10 @@ export default function App() {
       localStorage.setItem("darkMode", JSON.stringify(false));
     }
   }, [isDarkMode]);
+
+  useEvent("updateSelectedLayers", (layers) => {
+    console.log(layers);
+  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
