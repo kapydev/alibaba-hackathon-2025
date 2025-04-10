@@ -1,5 +1,9 @@
 import OpenAI from "openai";
-import { TOOL_RENDER_TEMPLATES, ToolType } from "../messages/tools";
+import {
+  NON_RENDERED_TOOLS,
+  TOOL_RENDER_TEMPLATES,
+  ToolType,
+} from "../messages/tools";
 import { ToolMessage } from "../messages/ToolMessage";
 
 export type Message = OpenAI.ChatCompletionMessageParam;
@@ -14,7 +18,7 @@ export function MessageItem<T extends ToolType>({
 }: {
   message: ToolMessage<T>;
 }) {
-  if (!message.type) return <></>;
+  if (!message.type || NON_RENDERED_TOOLS.includes(message.type)) return <></>;
 
   const renderTemplate = TOOL_RENDER_TEMPLATES[message.type];
   const messageClasses = `max-w-[80%] rounded-lg px-4 py-2 ${
@@ -22,7 +26,7 @@ export function MessageItem<T extends ToolType>({
       ? "bg-primary text-primary-foreground"
       : message.role === "system"
       ? "bg-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-      : "bg-background dark:bg-background/50" // Assistant message
+      : "bg-background dark:bg-secondary/70" // Assistant message
   }`;
 
   return (
@@ -32,7 +36,7 @@ export function MessageItem<T extends ToolType>({
       }`}
     >
       <div className={messageClasses}>
-        <div className="text-sm">{renderTemplate.title(message)}</div>
+        {/* <div className="text-sm">{renderTemplate.title(message)}</div> */}
         {renderTemplate.body(message)}
       </div>
     </div>

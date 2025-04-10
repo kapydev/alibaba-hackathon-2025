@@ -33,6 +33,7 @@ export default function App() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
+    console.log("messages", messages);
   }, [messages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,25 +89,21 @@ export default function App() {
         </div>
 
         {/* MESSAGE AREA */}
-        <div
-          className={`flex-1 p-4 overflow-y-auto ${
-            messages.length === 0
-              ? "flex items-center justify-center"
-              : "space-y-4"
-          }`}
-        >
-          {messages.length === 0 ? (
-            <p className="text-muted-foreground text-center">
+        <div className={`flex-1 p-4 overflow-y-auto`}>
+          {messages.length === 1 ? (
+            <p className="text-muted-foreground text-center grid place-items-center h-full">
               Select layers to add context
             </p>
           ) : (
-            messages.map((message) =>
-              message instanceof ToolMessage ? (
-                <MessageItem key={message.id} message={message} />
-              ) : (
-                <></>
-              )
-            )
+            <div className="space-y-4">
+              {messages.map((message) =>
+                message instanceof ToolMessage ? (
+                  <MessageItem key={message.id} message={message} />
+                ) : (
+                  <></>
+                )
+              )}
+            </div>
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -114,7 +111,10 @@ export default function App() {
         {/* FOOTER */}
         <div className="flex flex-col">
           <SelectionDisplay />
-          <form onSubmit={handleSubmit} className="flex w-full gap-2 px-4 pt-3.5 pb-5">
+          <form
+            onSubmit={handleSubmit}
+            className="flex w-full gap-2 px-4 pt-3.5 pb-5"
+          >
             <Input
               value={input}
               onChange={handleInputChange}
