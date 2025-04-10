@@ -2,14 +2,16 @@ import { createStore } from "@shared";
 import { RawMessage } from "@types";
 
 import toast from "react-hot-toast";
+import { Qwen } from "../llm/qwen";
 import { LLMOutputParser } from "../messages/LLMOutputParser";
 import { CustomMessage } from "../messages/Messages";
 import { SystemPromptMessage } from "../messages/SystemPromptMessage";
-import { createToolMessage, ToolMessage } from "../messages/ToolMessage";
-import { ToolType, TOOL_RENDER_TEMPLATES } from "../messages/tools";
-import { trpc } from "../trpc/trpc";
-import { Qwen } from "../llm/qwen";
-import { LLM } from "../llm/baseLlm";
+import { ToolMessage } from "../messages/ToolMessage";
+import {
+  TOOL_RENDER_TEMPLATES,
+  toolToToolString,
+  ToolType,
+} from "../messages/tools";
 
 const MAX_RETRIES = 3;
 
@@ -18,9 +20,11 @@ const MAX_RETRIES = 3;
  */
 export type CompletionMode = "full"; //| 'edit' | 'inline' | 'inline-edit';
 
+const llm = new Qwen();
+
 export const chatStore = createStore({
+  isLoading: false,
   messages: [new SystemPromptMessage()] as CustomMessage[],
-  llm: new Qwen(),
   /**
    * full - Can edit multiple files, and full files
    * edit - For fixing a previous prompt
@@ -55,34 +59,49 @@ window.chatStore = chatStore;
 
 //   return undefined;
 // }
+export async function updateChatFull(input: string) {
+  chatStore.set("messages", [
+    ...chatStore.get("messages"),
+    new ToolMessage(
+      toolToToolString("USER_PROMPT", {
+        body: input,
+        props: {},
+      })
+    ),
+  ]);
+}
 
 export async function continuePrompt(
   mode: CompletionMode,
-  llm: LLM,
   retryCount: number = 0
 ) {
-  const rawMessages = getRawMessages(chatStore.get("messages"));
-  const parser = new LLMOutputParser();
-  const stopSequences: string[] = [];
-//   if (mode.includes("inline")) {
-//     const additionalStopSeq = await getInlineStopSequence();
-//     if (additionalStopSeq) {
-//       stopSequences.push(additionalStopSeq);
-//     }
-//   }
-  const stream = llm.prompt(rawMessages, stopSequences);
+  chatStore.set("isLoading", true);
+  try {
+    const rawMessages = getRawMessages(chatStore.get("messages"));
+    const parser = new LLMOutputParser();
+    const stopSequences: string[] = [];
+    //   if (mode.includes("inline")) {
+    //     const additionalStopSeq = await getInlineStopSequence();
+    //     if (additionalStopSeq) {
+    //       stopSequences.push(additionalStopSeq);
+    //     }
+    //   }
+    const stream = llm.prompt(rawMessages, stopSequences);
 
-  await parser.handleTextStream(stream, mode);
+    await parser.handleTextStream(stream, mode);
 
-  if (parser.earlyExit) {
-    // If we had an error, check retry count
-    if (retryCount >= MAX_RETRIES) {
-      // Display error message to the user
-      toast.error("Max retries exceeded. Please try again later.");
-    } else {
-      // Run again
-      continuePrompt(mode, llm, retryCount + 1);
+    if (parser.earlyExit) {
+      // If we had an error, check retry count
+      if (retryCount >= MAX_RETRIES) {
+        // Display error message to the user
+        toast.error("Max retries exceeded. Please try again later.");
+      } else {
+        // Run again
+        continuePrompt(mode, retryCount + 1);
+      }
     }
+  } finally {
+    chatStore.set("isLoading", false);
   }
 }
 

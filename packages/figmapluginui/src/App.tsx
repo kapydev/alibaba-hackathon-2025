@@ -1,44 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Candy, Moon, Send, SquarePen, Sun } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { trpc } from "./trpc/trpc";
-import { Switch } from "@/components/ui/switch";
-import toast from "react-hot-toast";
-import { useEvent } from "./api/createEventListener";
-import { Message, MessageItem, MessageWithID } from "./features/Message";
-import { SelectionDisplay } from "./features/SelectionDisplay";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Candy, Moon, Send, SquarePen, Sun } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useEvent } from "./api/createEventListener";
+import { Message, MessageItem, MessageWithID } from "./features/Message";
+import { SelectionDisplay } from "./features/SelectionDisplay";
+import {
+  chatStore,
+  continuePrompt,
+  resetChatStore,
+  updateChatFull,
+} from "./stores/chatStore";
+import { trpc } from "./trpc/trpc";
+import { useDarkMode } from "./hooks/useDarkMode";
+import { toolToToolString } from "./messages/tools";
+import { ToolMessage } from "./messages/ToolMessage";
 
 export default function App() {
-  const [messages, setMessages] = useState<MessageWithID[]>([]);
+  const { isDarkMode, setIsDarkMode } = useDarkMode();
+  const messages = chatStore.use("messages");
+  const isLoading = chatStore.use("isLoading");
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    const savedMode = localStorage.getItem("darkMode");
-    return savedMode ? JSON.parse(savedMode) : false;
-  });
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (isDarkMode) {
-      root.classList.add("dark");
-      localStorage.setItem("darkMode", JSON.stringify(true));
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("darkMode", JSON.stringify(false));
-    }
-  }, [isDarkMode]);
-
-  useEvent("updateSelectedLayers", (layers) => {
-    console.log(layers);
-  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -54,63 +43,8 @@ export default function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-
-    // Add user message
-    const userMessage: MessageWithID = {
-      id: Date.now().toString(),
-      role: "user" as const,
-      content: input.trim(),
-    };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      // Prepare messages for API
-      const apiMessages: Message[] = [
-        { role: "system", content: "You are a helpful assistant." },
-        ...messages,
-        { role: userMessage.role, content: userMessage.content },
-      ];
-
-      // Create a temporary message for streaming
-      const assistantMessageId = (Date.now() + 1).toString();
-      setMessages((prev) => [
-        ...prev,
-        { id: assistantMessageId, role: "assistant", content: "" },
-      ]);
-
-      // Stream the response
-      const stream = await trpc.ai.chat.mutate(apiMessages);
-      let fullContent = "";
-
-      for await (const chunk of stream) {
-        if ("error" in chunk) {
-          console.error(chunk.error);
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: "Error: Failed to generate response." }
-                : msg
-            )
-          );
-          break;
-        } else {
-          fullContent += chunk.content;
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: fullContent }
-                : msg
-            )
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    await updateChatFull(input);
+    continuePrompt("full");
   };
 
   return (
@@ -127,7 +61,7 @@ export default function App() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setMessages([])}
+                  onClick={() => resetChatStore()}
                 >
                   <SquarePen />
                 </Button>
