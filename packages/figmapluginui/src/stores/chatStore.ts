@@ -8,6 +8,8 @@ import { SystemPromptMessage } from "../messages/SystemPromptMessage";
 import { createToolMessage, ToolMessage } from "../messages/ToolMessage";
 import { ToolType, TOOL_RENDER_TEMPLATES } from "../messages/tools";
 import { trpc } from "../trpc/trpc";
+import { Qwen } from "../llm/qwen";
+import { LLM } from "../llm/baseLlm";
 
 const MAX_RETRIES = 3;
 
@@ -18,6 +20,7 @@ export type CompletionMode = "full"; //| 'edit' | 'inline' | 'inline-edit';
 
 export const chatStore = createStore({
   messages: [new SystemPromptMessage()] as CustomMessage[],
+  llm: new Qwen(),
   /**
    * full - Can edit multiple files, and full files
    * edit - For fixing a previous prompt
@@ -32,40 +35,41 @@ export const chatStore = createStore({
 //@ts-expect-error for debugging
 window.chatStore = chatStore;
 
-export async function getInlineStopSequence(): Promise<string | undefined> {
-  const latestFile = await getLatestFocusedContent();
-  if (!latestFile) {
-    throw new Error("Could not find latest file for inline prompting");
-  }
+// export async function getInlineStopSequence(): Promise<string | undefined> {
+//   const latestFile = await getLatestFocusedContent();
+//   if (!latestFile) {
+//     throw new Error("Could not find latest file for inline prompting");
+//   }
 
-  const getTrimmedLines = (str: string) => {
-    return str.split("\n").map((line) => line.trim());
-  };
+//   const getTrimmedLines = (str: string) => {
+//     return str.split("\n").map((line) => line.trim());
+//   };
 
-  const allLines = getTrimmedLines(latestFile.fullContents);
-  const postSelectionLines = getTrimmedLines(latestFile.postSelection);
+//   const allLines = getTrimmedLines(latestFile.fullContents);
+//   const postSelectionLines = getTrimmedLines(latestFile.postSelection);
 
-  for (const line of postSelectionLines) {
-    if (allLines.filter((l) => l === line).length !== 1) continue;
-    return line;
-  }
+//   for (const line of postSelectionLines) {
+//     if (allLines.filter((l) => l === line).length !== 1) continue;
+//     return line;
+//   }
 
-  return undefined;
-}
+//   return undefined;
+// }
 
 export async function continuePrompt(
   mode: CompletionMode,
+  llm: LLM,
   retryCount: number = 0
 ) {
   const rawMessages = getRawMessages(chatStore.get("messages"));
   const parser = new LLMOutputParser();
   const stopSequences: string[] = [];
-  if (mode.includes("inline")) {
-    const additionalStopSeq = await getInlineStopSequence();
-    if (additionalStopSeq) {
-      stopSequences.push(additionalStopSeq);
-    }
-  }
+//   if (mode.includes("inline")) {
+//     const additionalStopSeq = await getInlineStopSequence();
+//     if (additionalStopSeq) {
+//       stopSequences.push(additionalStopSeq);
+//     }
+//   }
   const stream = llm.prompt(rawMessages, stopSequences);
 
   await parser.handleTextStream(stream, mode);
@@ -121,99 +125,99 @@ export function getSelectionDetailsByContent(
   };
 }
 
-export async function getSelectionDetailsByFile(
-  filePath: string,
-  startLine: number,
-  endLine: number
-) {
-  const curContents = await trpc.files.getFileContents.query({
-    filePath,
-  });
-  if (curContents === undefined) return undefined;
-  const { preSelection, selection, postSelection } =
-    getSelectionDetailsByContent(curContents, startLine, endLine);
-  return {
-    fullContents: curContents,
-    preSelection,
-    selection,
-    postSelection,
-  };
-}
+// export async function getSelectionDetailsByFile(
+//   filePath: string,
+//   startLine: number,
+//   endLine: number
+// ) {
+//   const curContents = await trpc.files.getFileContents.query({
+//     filePath,
+//   });
+//   if (curContents === undefined) return undefined;
+//   const { preSelection, selection, postSelection } =
+//     getSelectionDetailsByContent(curContents, startLine, endLine);
+//   return {
+//     fullContents: curContents,
+//     preSelection,
+//     selection,
+//     postSelection,
+//   };
+// }
 
-export async function getLatestFocusedContent() {
-  const fileContextMsg = [...getToolMessagesWithoutErrors()]
-    .reverse()
-    .find((msg) => msg.type === "USER_FOCUS_BLOCK");
+// export async function getLatestFocusedContent() {
+//   const fileContextMsg = [...getToolMessagesWithoutErrors()]
+//     .reverse()
+//     .find((msg) => msg.type === "USER_FOCUS_BLOCK");
 
-  if (!fileContextMsg?.isType("USER_FOCUS_BLOCK") || !fileContextMsg.props)
-    return undefined;
+//   if (!fileContextMsg?.isType("USER_FOCUS_BLOCK") || !fileContextMsg.props)
+//     return undefined;
 
-  const startLine = +fileContextMsg.props.startLine;
-  const endLine = +fileContextMsg.props.endLine;
-  const result = await getSelectionDetailsByFile(
-    fileContextMsg.props.filePath,
-    startLine,
-    endLine
-  );
+//   const startLine = +fileContextMsg.props.startLine;
+//   const endLine = +fileContextMsg.props.endLine;
+//   const result = await getSelectionDetailsByFile(
+//     fileContextMsg.props.filePath,
+//     startLine,
+//     endLine
+//   );
 
-  if (result === undefined) return undefined;
+//   if (result === undefined) return undefined;
 
-  return {
-    ...result,
-    props: fileContextMsg.props,
-  };
-}
+//   return {
+//     ...result,
+//     props: fileContextMsg.props,
+//   };
+// }
 
 export function resetChatStore() {
   chatStore.set("messages", [new SystemPromptMessage()]);
 }
 
-trpc.files.onSelectionChange.subscribe(undefined, {
-  onData: (data) => {
-    //TODO: If taffy window is still active, we should probably add to context instead of completely new
-    resetChatStore();
-    const curMsgs = chatStore.get("messages");
-    const selectionDetails = getSelectionDetailsByContent(
-      data.fullFileContents,
-      data.selectedLineNumbers.start,
-      data.selectedLineNumbers.end
-    );
+// trpc.files.onSelectionChange.subscribe(undefined, {
+//   onData: (data) => {
+//     //TODO: If taffy window is still active, we should probably add to context instead of completely new
+//     resetChatStore();
+//     const curMsgs = chatStore.get("messages");
+//     const selectionDetails = getSelectionDetailsByContent(
+//       data.fullFileContents,
+//       data.selectedLineNumbers.start,
+//       data.selectedLineNumbers.end
+//     );
 
-    // const fileSelectionMessage = createToolMessage('USER_FILE_CONTENTS', {
-    //   body: data.fullFileContents,
-    //   props: {
-    //     filePath: data.fileName,
-    //   },
-    // });
-    const fullContents =
-      selectionDetails.preSelection +
-      "\n{FOCUS_START}\n" +
-      selectionDetails.selection +
-      "\n{FOCUS_END}\n" +
-      selectionDetails.postSelection;
-    const fileFocusMessage = createToolMessage("USER_FOCUS_BLOCK", {
-      body: fullContents,
-      props: {
-        startLine: String(data.selectedLineNumbers.start),
-        endLine: String(data.selectedLineNumbers.end),
-        filePath: data.fileName,
-      },
-    });
-    chatStore.set("messages", [
-      ...curMsgs,
-      // fileSelectionMessage,
-      fileFocusMessage,
-    ]);
-  },
-});
+//     // const fileSelectionMessage = createToolMessage('USER_FILE_CONTENTS', {
+//     //   body: data.fullFileContents,
+//     //   props: {
+//     //     filePath: data.fileName,
+//     //   },
+//     // });
+//     const fullContents =
+//       selectionDetails.preSelection +
+//       "\n{FOCUS_START}\n" +
+//       selectionDetails.selection +
+//       "\n{FOCUS_END}\n" +
+//       selectionDetails.postSelection;
+//     const fileFocusMessage = createToolMessage("USER_FOCUS_BLOCK", {
+//       body: fullContents,
+//       props: {
+//         startLine: String(data.selectedLineNumbers.start),
+//         endLine: String(data.selectedLineNumbers.end),
+//         filePath: data.fileName,
+//       },
+//     });
+//     chatStore.set("messages", [
+//       ...curMsgs,
+//       // fileSelectionMessage,
+//       fileFocusMessage,
+//     ]);
+//   },
+// });
 
-chatStore.subscribe("messages", () => {
-  /**TODO: Allow editing in multi file mode - right now there are the following edge cases:
-   * 1. After the edit, the diff view is quite strange
-   * 2. Need to add state for edits that have already been accepted and those who have not been
-   */
-  chatStore.set("mode", getPossibleModes()[0]);
-});
+// chatStore.subscribe("messages", () => {
+//   /**TODO: Allow editing in multi file mode - right now there are the following edge cases:
+//    * 1. After the edit, the diff view is quite strange
+//    * 2. Need to add state for edits that have already been accepted and those who have not been
+//    */
+//   chatStore.set("mode", getPossibleModes()[0]);
+// });
 
 export function removeMessage<T extends ToolType>(message: ToolMessage<T>) {
   chatStore.set("messages", [
@@ -232,27 +236,27 @@ export function getToolMessagesWithoutErrors(): ToolMessage[] {
   );
 }
 
-export async function addAddtionalContext(filePath: string) {
-  const data = await trpc.files.getPathContents.query({ filePath });
+// export async function addAddtionalContext(filePath: string) {
+//   const data = await trpc.files.getPathContents.query({ filePath });
 
-  let contents = "";
-  if (data.type === "directory") {
-    contents = data.contents
-      .map((subPath) => `(${subPath.type})${subPath.fullPath}`)
-      .join("\n");
-  } else {
-    contents = data.contents;
-  }
+//   let contents = "";
+//   if (data.type === "directory") {
+//     contents = data.contents
+//       .map((subPath) => `(${subPath.type})${subPath.fullPath}`)
+//       .join("\n");
+//   } else {
+//     contents = data.contents;
+//   }
 
-  const additionalCtxMsg = createToolMessage("USER_FILE_CONTENTS", {
-    body: contents,
-    props: {
-      filePath,
-      type: data.type,
-    },
-  });
-  chatStore.set("messages", [...chatStore.get("messages"), additionalCtxMsg]);
-}
+//   const additionalCtxMsg = createToolMessage("USER_FILE_CONTENTS", {
+//     body: contents,
+//     props: {
+//       filePath,
+//       type: data.type,
+//     },
+//   });
+//   chatStore.set("messages", [...chatStore.get("messages"), additionalCtxMsg]);
+// }
 
 // export async function setAdditionalContext(fileNames: string[]) {
 //   const currentMessages = chatStore.get('messages');

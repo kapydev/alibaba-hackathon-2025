@@ -74,7 +74,7 @@ export class LLMOutputParser {
     }
 
     const toolMsgs = getToolMessagesWithoutErrors();
-    const latestMsg: ToolMessage = toolMsgs.at(-1);
+    const latestMsg: ToolMessage | undefined = toolMsgs.at(-1);
     if (!latestMsg) {
       throw new Error("Expected at least one message!");
     }
