@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export type Message = OpenAI.ChatCompletionMessageParam;
 export type MessageWithID = { id: string; content: string } & Message;
@@ -25,9 +26,16 @@ export function MessageItem({ message }: MessageItemProps) {
     >
       <div className={messageClasses}>
         <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
           components={{
             hr: ({ node, ...props }) => (
               <hr style={{ marginTop: "12px", marginBottom: "12px" }} {...props} />
+            ),
+            pre: ({ node, ...props }) => (
+              <pre
+                {...props}
+                style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}
+              />
             ),
           }}
         >

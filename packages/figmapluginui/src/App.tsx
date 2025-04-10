@@ -153,7 +153,7 @@ export default function App() {
 
         {/* MESSAGE AREA */}
         <div
-          className={`flex-1 bg-muted p-4 overflow-y-auto ${
+          className={`flex-1 p-4 overflow-y-auto ${
             messages.length === 0
               ? "flex items-center justify-center"
               : "space-y-4"
@@ -171,11 +171,10 @@ export default function App() {
           <div ref={messagesEndRef} />
         </div>
 
-        <SelectionDisplay />
-
         {/* FOOTER */}
-        <div className="flex items-center border-t p-4">
-          <form onSubmit={handleSubmit} className="flex w-full gap-2">
+        <div className="flex flex-col">
+          <SelectionDisplay />
+          <form onSubmit={handleSubmit} className="flex w-full gap-2 px-4 pt-3.5 pb-5">
             <Input
               value={input}
               onChange={handleInputChange}
