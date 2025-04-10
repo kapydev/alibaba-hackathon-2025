@@ -589,7 +589,7 @@ export const TOOL_RENDER_TEMPLATES: {
   // },
   USER_FIGMA_NODE_CONTENTS: {
     Icon: FileInputIcon,
-    title: () => "File Context Added",
+    title: () => "Figma Node Added",
     body: (data) => {
       if (!data.props) return;
       return data.props.nodeName;

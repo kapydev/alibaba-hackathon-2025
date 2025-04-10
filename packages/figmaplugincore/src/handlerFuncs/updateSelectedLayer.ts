@@ -3,6 +3,7 @@ import { sendFrontend } from "../messaging";
 export async function updateSelectedLayers() {
   if (figma.currentPage.selection.length === 0) {
     sendFrontend("updateSelectedLayers", []);
+    return [];
   } else {
     const selectedNodes = await Promise.all(
       figma.currentPage.selection.map(async (node) => {
@@ -20,5 +21,6 @@ export async function updateSelectedLayers() {
       })
     );
     sendFrontend("updateSelectedLayers", selectedNodes);
+    return selectedNodes;
   }
 }
