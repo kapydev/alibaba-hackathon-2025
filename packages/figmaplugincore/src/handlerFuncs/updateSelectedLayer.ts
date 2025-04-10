@@ -12,6 +12,25 @@ export async function updateSelectedLayers() {
           name: node.name,
           id: node.id,
           page: figma.root.name,
+        };
+      })
+    );
+    sendFrontend("updateSelectedLayers", selectedNodes);
+    return selectedNodes;
+  }
+}
+
+export async function getSelectedLayersFull() {
+  if (figma.currentPage.selection.length === 0) {
+    sendFrontend("updateSelectedLayers", []);
+    return [];
+  } else {
+    const selectedNodes = await Promise.all(
+      figma.currentPage.selection.map(async (node) => {
+        return {
+          name: node.name,
+          id: node.id,
+          page: figma.root.name,
           json: await getSimplifiedJson(node),
           image: await node.exportAsync({
             format: "PNG",

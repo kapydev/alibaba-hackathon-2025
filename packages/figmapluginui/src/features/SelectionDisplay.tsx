@@ -9,19 +9,21 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { selectedLayerStore } from "../stores/selectedLayerStore";
 
 const MAX_BADGES_DISPLAYED_INITIAL = 7;
 
 export function SelectionDisplay() {
-  const [selectedLayers, setSelectedLayers] = useState<any[]>([]);
+  const selectedLayers = selectedLayerStore.use("layers");
+  // const [selectedLayers, setSelectedLayers] = useState<any[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  useEvent("updateSelectedLayers", (layers) => {
-    setSelectedLayers(layers);
-    if (layers.length <= MAX_BADGES_DISPLAYED_INITIAL) {
-        setIsExpanded(false);
-    }
-  });
+  // useEvent("updateSelectedLayers", (layers) => {
+  //   setSelectedLayers(layers);
+  //   if (layers.length <= MAX_BADGES_DISPLAYED_INITIAL) {
+  //       setIsExpanded(false);
+  //   }
+  // });
 
   const displayLayers = isExpanded
     ? selectedLayers

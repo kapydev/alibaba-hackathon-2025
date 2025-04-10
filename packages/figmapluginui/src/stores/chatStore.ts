@@ -12,6 +12,7 @@ import {
   toolToToolString,
   ToolType,
 } from "../messages/tools";
+import { sendMidEnd } from "../api/sendMidEnd";
 
 const MAX_RETRIES = 3;
 
@@ -60,8 +61,34 @@ window.chatStore = chatStore;
 //   return undefined;
 // }
 export async function updateChatFull(input: string) {
+  // Update the prompt with the full data of selected layers
+  const layers = await sendMidEnd("getSelectedLayersFull");
+
+  const relevantMessages = chatStore.get("messages").filter((msg) => {
+    if (!(msg instanceof ToolMessage)) return true;
+    if (!msg.isType("USER_FIGMA_NODE_CONTENTS")) return true;
+    if (layers.every((layer) => layer.id == msg.props?.nodeId)) return true;
+    //There is a new message for the selected layer, so use the updated data
+    return false;
+  });
+
+  layers.forEach((layer) => {
+    relevantMessages.push(
+      new ToolMessage(
+        toolToToolString("USER_FIGMA_NODE_CONTENTS", {
+          body: JSON.stringify(layer.json, undefined, 2),
+          props: {
+            nodeName: layer.name,
+            nodeId: layer.id,
+          },
+        })
+      )
+    );
+  });
+
+  // Update the prompt with the user's input
   chatStore.set("messages", [
-    ...chatStore.get("messages"),
+    ...relevantMessages,
     new ToolMessage(
       toolToToolString("USER_PROMPT", {
         body: input,

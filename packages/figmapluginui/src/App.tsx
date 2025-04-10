@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "./features/Message";
 import { SelectionDisplay } from "./features/SelectionDisplay";
 import { useDarkMode } from "./hooks/useDarkMode";
-import { useHandleSelectionUpdate } from "./hooks/useHandleSelectionUpdate";
+// import { useHandleSelectionUpdate } from "./hooks/useHandleSelectionUpdate";
 import { ToolMessage } from "./messages/ToolMessage";
 import {
   chatStore,
@@ -21,7 +21,7 @@ import {
 } from "./stores/chatStore";
 
 export default function App() {
-  useHandleSelectionUpdate();
+  // useHandleSelectionUpdate();
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   const messages = chatStore.use("messages");
   const isLoading = chatStore.use("isLoading");

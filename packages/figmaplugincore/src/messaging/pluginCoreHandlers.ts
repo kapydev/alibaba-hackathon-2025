@@ -6,6 +6,10 @@ import {
 } from "../handlerFuncs/getImageFromSelectedFrame";
 import { handleGetSelectedIds } from "../handlerFuncs/handleGetSelectedIds";
 import { handleResize } from "../handlerFuncs/handleResize";
+import {
+  getSelectedLayersFull,
+  updateSelectedLayers,
+} from "@figmaplugincore-types/handlerFuncs/updateSelectedLayer";
 
 export type PluginCoreHandlers = typeof pluginCoreHandlers;
 
@@ -15,6 +19,8 @@ export const pluginCoreHandlers = {
   getFullDesignImageFromSelectedFrame,
   getSelectedIds: handleGetSelectedIds,
   focusNode: runFocusNode,
+  updateSelectedLayers,
+  getSelectedLayersFull,
   //FIGMA EDITING
   handleChangeColor,
 } satisfies Record<string, (...args: any[]) => any>;
