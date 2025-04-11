@@ -25,8 +25,9 @@ export default function App() {
   // useHandleSelectionUpdate();
   const { isDarkMode, setIsDarkMode } = useDarkMode();
   const messages = chatStore.use("messages");
-  const isLoading = chatStore.use("isLoading");
+  const isLoadingChat = chatStore.use("isLoading");
   const [input, setInput] = useState("");
+  const [isAppLoading, setIsAppLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -36,17 +37,36 @@ export default function App() {
     }
   }, [messages]);
 
+  // App loading timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 3000); // 5 seconds
+
+    return () => clearTimeout(timer); // Cleanup timer on unmount
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoadingChat) return;
     await updateChatFull(input);
     continuePrompt("full");
     setInput("");
   };
+
+  // Render loading screen if isAppLoading is true
+  if (isAppLoading) {
+    return (
+      <div className="bg-background text-foreground h-screen flex flex-col items-center justify-center border-none rounded-none">
+        <Candy className="w-16 h-16 mb-4 animate-pulse" />
+        <p className="text-muted-foreground font-medium">Powered by Qwen</p>
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>
@@ -104,7 +124,7 @@ export default function App() {
                 )
               )}
               {/* Add Skeleton loader only when loading AND the last message isn't the assistant's response yet */}
-              {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+              {isLoadingChat && messages[messages.length - 1]?.role !== "assistant" && (
                 <div className="flex justify-start">
                   <Skeleton className="h-10 w-48 rounded-lg bg-background dark:bg-secondary/70" />
                 </div>
@@ -126,11 +146,11 @@ export default function App() {
               onChange={handleInputChange}
               placeholder="Send a message to start the conversation..."
               className="flex-1"
-              disabled={isLoading}
+              disabled={isLoadingChat}
             />
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button type="submit" size="icon" disabled={isLoading}>
+                <Button type="submit" size="icon" disabled={isLoadingChat}>
                   <Send className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
