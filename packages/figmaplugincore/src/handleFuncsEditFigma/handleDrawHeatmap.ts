@@ -75,23 +75,23 @@ export async function handleDrawHeatmap(data: {
     {
       type: "SOLID",
       color: { r: 1, g: 0, b: 0 },
-      opacity: 0.5,
+      opacity: 0.2,
     },
   ];
 
   yellowCircle.fills = [
     {
       type: "SOLID",
-      color: { r: 1, g: 1, b: 0 },
-      opacity: 0.5,
+      color: { r: 1, g: 0, b: 0 },
+      opacity: 0.2,
     },
   ];
 
   greenCircle.fills = [
     {
       type: "SOLID",
-      color: { r: 0, g: 1, b: 0 },
-      opacity: 0.5,
+      color: { r: 1, g: 0, b: 0 },
+      opacity: 0.2,
     },
   ];
 
