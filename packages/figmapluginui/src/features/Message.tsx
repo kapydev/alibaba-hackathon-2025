@@ -21,7 +21,7 @@ export function MessageItem<T extends ToolType>({
   if (!message.type || NON_RENDERED_TOOLS.includes(message.type)) return <></>;
 
   const renderTemplate = TOOL_RENDER_TEMPLATES[message.type];
-  const messageClasses = `max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
+  const messageClasses = `max-w-[80%] rounded-lg px-4 py-2 ${
     message.role === "user"
       ? "bg-primary text-primary-foreground ml-auto"
       : message.role === "system"

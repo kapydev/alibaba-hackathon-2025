@@ -145,7 +145,7 @@ export default function App() {
                </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-1.5">
               {messages.map((message) =>
                 message instanceof ToolMessage ? (
                   <MessageItem key={message.id} message={message} />
