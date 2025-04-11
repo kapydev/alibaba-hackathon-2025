@@ -36,18 +36,7 @@ export async function handleAnnotateNode(data: {
     topParent = topParent.parent as SceneNode;
   }
 
-  const pageBackground = figma.currentPage.backgrounds[0];
-  const isDarkBackground =
-    pageBackground &&
-    pageBackground.type === "SOLID" &&
-    pageBackground.color &&
-    (pageBackground.color.r + pageBackground.color.g + pageBackground.color.b) /
-      3 <
-      0.5;
-
-  const lineColor = isDarkBackground
-    ? { r: 1, g: 1, b: 1 } // White for dark backgrounds
-    : { r: 0, g: 0, b: 0 }; // Black for light backgrounds
+  const lineColor = { r: 245 / 255, g: 74 / 255, b: 0 / 255 }; // rgb(245, 74, 0)
   // Create a text node for the comment and add it to the page first
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
   const textNode = figma.createText();
@@ -65,70 +54,16 @@ export async function handleAnnotateNode(data: {
   const line = figma.createLine();
   figma.currentPage.appendChild(line);
 
-  // Get the current page background color to determine line color
-
-  // Calculate available space in each direction
-  const pageWidth = figma.viewport.bounds.width;
-  const pageHeight = figma.viewport.bounds.height;
-
-  const spaceTop = topParent.y;
-  const spaceRight = pageWidth - (topParent.x + topParent.width);
-  const spaceBottom = pageHeight - (topParent.y + topParent.height);
-  const spaceLeft = topParent.x;
-
-  // Determine the best position for the annotation
-  const offset = 20; // Offset from the node
-  let position: "top" | "right" | "bottom" | "left";
-  const spaces = [
-    { dir: "top", space: spaceTop },
-    { dir: "right", space: spaceRight },
-    { dir: "bottom", space: spaceBottom },
-    { dir: "left", space: spaceLeft },
-  ];
-
-  // Sort by available space and choose the direction with most space
-  spaces.sort((a, b) => b.space - a.space);
-  position = spaces[0].dir as "top" | "right" | "bottom" | "left";
+  const offset = 20;
 
   // Get the anchor point on the node
-  const nodeAnchor = getAnchor(node, position);
-  console.log({ nodeAnchor });
+  const nodeAnchor = getAnchor(node, "bottom");
 
-  // Position the text node based on the chosen direction
-  switch (position) {
-    case "top":
-      textNode.x = node.x + node.width / 2 - textNode.width / 2;
-      textNode.y = topParent.y - offset - textNode.height;
-      break;
-
-    case "right":
-      textNode.x = topParent.x + topParent.width + offset;
-      textNode.y = node.y + node.height / 2 - textNode.height / 2;
-      break;
-
-    case "bottom":
-      textNode.x = node.x + node.width / 2 - textNode.width / 2;
-      textNode.y = topParent.y + topParent.height + offset;
-      break;
-
-    case "left":
-      textNode.x = topParent.x - offset - textNode.width;
-      textNode.y = node.y + node.height / 2 - textNode.height / 2;
-      break;
-  }
-
-  // Determine the opposite position for the text node anchor
-  const oppositePosition: "top" | "right" | "bottom" | "left" =
-    position === "top"
-      ? "bottom"
-      : position === "right"
-      ? "left"
-      : position === "bottom"
-      ? "top"
-      : "right";
+  textNode.x = node.x + node.width / 2 - textNode.width / 2;
+  textNode.y = topParent.y + topParent.height + offset;
 
   // Get the text node anchor point
-  const textAnchor = getAnchor(textNode, oppositePosition);
+  const textAnchor = getAnchor(textNode, "top");
 
   // Configure the line between the node and the text
   configureLine(line, nodeAnchor, textAnchor, lineColor);
@@ -138,7 +73,6 @@ export async function handleAnnotateNode(data: {
   // group.name = `Annotation for ${node.name}`;
 
   // Notify that annotation was added
-  figma.notify(`Added annotation to ${node.name}`);
 }
 
 /**
