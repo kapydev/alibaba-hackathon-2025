@@ -21,6 +21,12 @@ import {
 } from "./stores/chatStore";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const SUGGESTIONS = [
+  "Tell me more about the selected designs",
+  "Change to a darker color palette",
+  "Suggest improvements for this design",
+];
+
 export default function App() {
   // useHandleSelectionUpdate();
   const { isDarkMode, setIsDarkMode } = useDarkMode();
@@ -56,6 +62,14 @@ export default function App() {
     await updateChatFull(input);
     continuePrompt("full");
     setInput("");
+  };
+
+  const handleSuggestionClick = async (suggestion: string) => {
+    if (isLoadingChat) return;
+    setInput(suggestion); // Optionally set input for visual feedback
+    await updateChatFull(suggestion);
+    continuePrompt("full");
+    setInput(""); // Clear input after sending
   };
 
   // Render loading screen if isAppLoading is true
@@ -111,9 +125,24 @@ export default function App() {
         {/* MESSAGE AREA */}
         <div className={`flex-1 p-4 overflow-y-auto`}>
           {messages.length === 1 ? (
-            <p className="text-muted-foreground text-center grid place-items-center h-full">
-              Select layers to add context
-            </p>
+            <div className="grid place-items-center h-full">
+               <div className="text-center space-y-4 flex flex-col items-center">
+                 <p className="text-muted-foreground">Select layers to add context or start with a suggestion:</p>
+                 <div className="flex flex-wrap justify-center items-center gap-2 max-w-2/3">
+                    {SUGGESTIONS.map((suggestion) => (
+                      <Button
+                        key={suggestion}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        disabled={isLoadingChat}
+                      >
+                        {suggestion}
+                      </Button>
+                    ))}
+                 </div>
+               </div>
+            </div>
           ) : (
             <div className="space-y-4">
               {messages.map((message) =>
