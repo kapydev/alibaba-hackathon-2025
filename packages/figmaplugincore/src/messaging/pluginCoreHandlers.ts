@@ -11,6 +11,7 @@ import {
   updateSelectedLayers,
 } from "@figmaplugincore-types/handlerFuncs/updateSelectedLayer";
 import { handleAnnotateNode } from "@figmaplugincore-types/handleFuncsEditFigma/handleAnnotateNode";
+import { handleDrawHeatmap } from "@figmaplugincore-types/handleFuncsEditFigma/handleDrawHeatmap";
 
 export type PluginCoreHandlers = typeof pluginCoreHandlers;
 
@@ -25,4 +26,5 @@ export const pluginCoreHandlers = {
   //FIGMA EDITING
   handleChangeColor,
   handleAnnotateNode,
+  handleDrawHeatmap,
 } satisfies Record<string, (...args: any[]) => any>;

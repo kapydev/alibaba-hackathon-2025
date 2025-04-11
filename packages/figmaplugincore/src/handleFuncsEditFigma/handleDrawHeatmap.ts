@@ -1,16 +1,18 @@
 /**
  * Handles drawing a heatmap visualization around a Figma node
  * @param nodeId The ID of the node to center the heatmap on
- * @param radius The radius of the inner circle
+ * @param xRadius The horizontal radius of the inner circle
+ * @param yRadius The vertical radius of the inner circle
  * @param spreadRadius The additional radius for the outer circles
  * @returns Promise that resolves when the heatmap is drawn
  */
 export async function handleDrawHeatmap(data: {
   nodeId: string;
-  radius: number;
+  xRadius: number;
+  yRadius: number;
   spreadRadius: number;
 }): Promise<void> {
-  const { nodeId, radius, spreadRadius } = data;
+  const { nodeId, xRadius, yRadius, spreadRadius } = data;
 
   // Get the node by ID
   const node = await figma.getNodeByIdAsync(nodeId);
@@ -48,22 +50,25 @@ export async function handleDrawHeatmap(data: {
   greenCircle.name = "Heatmap - Cool";
 
   // Set the sizes of the circles
-  const redRadius = radius;
-  const yellowRadius = radius + 0.5 * spreadRadius;
-  const greenRadius = radius + spreadRadius;
+  const redXRadius = xRadius;
+  const redYRadius = yRadius;
+  const yellowXRadius = xRadius + 0.5 * spreadRadius;
+  const yellowYRadius = yRadius + 0.5 * spreadRadius;
+  const greenXRadius = xRadius + spreadRadius;
+  const greenYRadius = yRadius + spreadRadius;
 
   // Resize the circles
-  redCircle.resize(redRadius * 2, redRadius * 2);
-  yellowCircle.resize(yellowRadius * 2, yellowRadius * 2);
-  greenCircle.resize(greenRadius * 2, greenRadius * 2);
+  redCircle.resize(redXRadius * 2, redYRadius * 2);
+  yellowCircle.resize(yellowXRadius * 2, yellowYRadius * 2);
+  greenCircle.resize(greenXRadius * 2, greenYRadius * 2);
 
   // Position the circles at the center of the node
-  redCircle.x = centerX - redRadius;
-  redCircle.y = centerY - redRadius;
-  yellowCircle.x = centerX - yellowRadius;
-  yellowCircle.y = centerY - yellowRadius;
-  greenCircle.x = centerX - greenRadius;
-  greenCircle.y = centerY - greenRadius;
+  redCircle.x = centerX - redXRadius;
+  redCircle.y = centerY - redYRadius;
+  yellowCircle.x = centerX - yellowXRadius;
+  yellowCircle.y = centerY - yellowYRadius;
+  greenCircle.x = centerX - greenXRadius;
+  greenCircle.y = centerY - greenYRadius;
 
   // Set the colors and opacity
   redCircle.fills = [

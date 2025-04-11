@@ -20,6 +20,7 @@ import {
   resetChatStore,
   updateChatFull,
 } from "./stores/chatStore";
+import { sendMidEnd } from "./api/sendMidEnd";
 
 const SUGGESTIONS = [
   "Tell me more about the selected designs",
@@ -88,7 +89,18 @@ export default function App() {
         {/* TITLEBAR */}
         <div className="space-y-1.5 p-3 border-b border-border/80 flex flex-row justify-between items-center bg-gradient-to-b from-background to-background/90 shadow-sm">
           <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
-            <Candy className="ml-1 text-primary" size={20} />
+            <Candy
+              className="ml-1 text-primary"
+              size={20}
+              onClick={() =>
+                sendMidEnd("handleDrawHeatmap", {
+                  nodeId: "1:58",
+                  xRadius: 200,
+                  yRadius: 10,
+                  spreadRadius: 30,
+                })
+              }
+            />
           </div>
           <div className="flex items-center space-x-2">
             <Tooltip>

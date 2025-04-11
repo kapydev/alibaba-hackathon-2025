@@ -81,6 +81,24 @@ export const TOOL_TEMPLATES = {
     sampleBody: "",
     data: {},
   },
+  ASSISTANT_DRAW_HEATMAP: {
+    role: "assistant",
+    desc: "Draw a heatmap visualization around a Figma node to highlight areas of interest or attention. The heatmap consists of three concentric ellipses with different colors (red, yellow, green) representing different levels of intensity.",
+    propDesc: {
+      nodeId: "ID of the node to center the heatmap on",
+      xRadius: "Horizontal radius of the inner circle (in pixels)",
+      yRadius: "Vertical radius of the inner circle (in pixels)",
+      spreadRadius: "Additional radius for the outer circles (in pixels)",
+    },
+    sampleProps: {
+      nodeId: "1:58",
+      xRadius: "200",
+      yRadius: "100",
+      spreadRadius: "30",
+    },
+    sampleBody: "",
+    data: {},
+  },
   ASSISTANT_ANNOTATE: {
     role: "assistant",
     desc: "Write a comment on a particular nodeId. Use this when the user asks for feedback so that you can comment directly on how the design should be improved. Consider using emojis in your comments to differentiate them and make them stand out.",
@@ -228,6 +246,26 @@ export const TOOL_RENDER_TEMPLATES: {
     onFocus: (data) => {
       if (!data.props) return;
       sendMidEnd("handleChangeColor", data.props);
+    },
+  },
+  ASSISTANT_DRAW_HEATMAP: {
+    Icon: BotIcon,
+    title: () => "Draw Heatmap",
+    content: (data) => data.body,
+    body: (data) => {
+      if (data.props === undefined) return "";
+      const { nodeId, xRadius, yRadius, spreadRadius } = data.props;
+      return `${nodeId} : Heatmap with inner radius (${xRadius}x${yRadius}) and spread ${spreadRadius}`;
+    },
+    rules: [],
+    onFocus: (data) => {
+      if (!data.props) return;
+      sendMidEnd("handleDrawHeatmap", {
+        nodeId: data.props.nodeId,
+        xRadius: Number(data.props.xRadius),
+        yRadius: Number(data.props.yRadius),
+        spreadRadius: Number(data.props.spreadRadius)
+      });
     },
   },
   ASSISTANT_ANNOTATE: {
