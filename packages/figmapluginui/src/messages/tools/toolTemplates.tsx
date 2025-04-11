@@ -51,11 +51,14 @@ export interface ToolTemplate {
 export const TOOL_TEMPLATES = {
   ASSISTANT_INFO: {
     role: "assistant",
-    desc: "For the assistant to write a response to the user.",
+    desc: "For the assistant to write a response to the user. If refering to a specific item on the page, end the assistant info, annotate the specific item, then continue the assistant info.",
     propDesc: {},
     sampleProps: {},
-    sampleBody:
-      "To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. We should avoid updating the color of buttons which only have outlines, because even though have the same background, they stand out via their outline. Then, for each of these buttons with the bad color rgba(W,X,Y,Z), update their color to match the main primary color rgba(W,X,Y,Z).",
+    sampleBody: `
+    There are a few issues with the design, for example the colors of buttons do not contrast enough with the background, which may cause users to drop off. I will annotate your design to highlight these problems
+    (then END_ASSISTANT_INFO and run ASSISTANT_ANNOTATE)
+    >>>>>OR<<<<<
+    To fix the problem of buttons blending with the page, we need to identify the color of all the poorly colored buttons. We should avoid updating the color of buttons which only have outlines, because even though have the same background, they stand out via their outline. Then, for each of these buttons with the bad color rgba(W,X,Y,Z), update their color to match the main primary color rgba(W,X,Y,Z).`,
     data: {},
   },
   ASSISTANT_CHANGE_COLOR: {
@@ -74,6 +77,21 @@ export const TOOL_TEMPLATES = {
       g: "0.7",
       b: "0.9",
       a: "1.0",
+    },
+    sampleBody: "",
+    data: {},
+  },
+  ASSISTANT_ANNOTATE: {
+    role: "assistant",
+    desc: "Write a comment on a particular nodeId. Use this when the user asks for feedback so that you can comment directly on how the design should be improved. Consider using emojis in your comments to differentiate them and make them stand out.",
+    propDesc: {
+      nodeId: "nodeId",
+      comment: "comment",
+    },
+    sampleProps: {
+      nodeId: "1:58",
+      comment:
+        "This button does not constrast well with the background, consider changing its color",
     },
     sampleBody: "",
     data: {},
@@ -209,6 +227,21 @@ export const TOOL_RENDER_TEMPLATES: {
     onFocus: (data) => {
       if (!data.props) return;
       sendMidEnd("handleChangeColor", data.props);
+    },
+  },
+  ASSISTANT_ANNOTATE: {
+    Icon: BotIcon,
+    title: () => "Change color",
+    content: (data) => data.body,
+    body: (data) => {
+      if (data.props === undefined) return "";
+      const { nodeId, comment } = data.props;
+      return `${nodeId} : ${comment}`;
+    },
+    rules: [],
+    onFocus: (data) => {
+      if (!data.props) return;
+      sendMidEnd("handleAnnotateNode", data.props);
     },
   },
   USER_TOOL_ERROR: {

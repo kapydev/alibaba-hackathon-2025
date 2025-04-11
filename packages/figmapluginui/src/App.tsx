@@ -57,12 +57,12 @@ export default function App() {
             <Candy
               className="ml-1"
               size={20}
-              onClick={() =>
-                sendMidEnd("handleAnnotateNode", {
-                  nodeId: "1:58",
-                  comment: "Hello Annotation!",
-                })
-              }
+              // onClick={() =>
+              //   sendMidEnd("handleAnnotateNode", {
+              //     nodeId: "1:58",
+              //     comment: "Hello Annotation!",
+              //   })
+              // }
             />
           </div>
           <div className="flex items-center space-x-2">

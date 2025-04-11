@@ -25,54 +25,80 @@ export async function handleAnnotateNode(data: {
     );
     return;
   }
-
-  // Find the topmost parent to ensure annotation is placed outside the parent tree
-  let topParent = node;
-  while (
-    topParent.parent &&
-    topParent.parent.type !== "PAGE" &&
-    topParent.parent.type !== "DOCUMENT"
-  ) {
-    topParent = topParent.parent as SceneNode;
+  const nodeAbsBox = node.absoluteBoundingBox;
+  if (!nodeAbsBox) {
+    console.error("Missing node abs box");
+    return;
   }
 
   const lineColor = { r: 245 / 255, g: 74 / 255, b: 0 / 255 }; // rgb(245, 74, 0)
-  // Create a text node for the comment and add it to the page first
+  const strokeWeight = 2;
+
+  // Load font first
   await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+
+  // Create a text node for the comment
   const textNode = figma.createText();
-  figma.currentPage.appendChild(textNode);
+  textNode.textAutoResize = 'HEIGHT';
+  textNode.resize(200, textNode.height); // Set max width to 400
   textNode.characters = comment;
   textNode.fontSize = 14;
-  textNode.fills = [
-    {
-      type: "SOLID",
-      color: lineColor,
-    },
-  ];
+  textNode.fills = [{ type: "SOLID", color: { r: 0, g: 0, b: 0 } }]; // Black text
 
-  // Create a line node and add it to the page first
+  // Create a frame to contain the text with auto layout
+  const container = figma.createFrame();
+  container.name = "Annotation Container";
+  container.fills = [{ type: "SOLID", color: { r: 1, g: 1, b: 1 } }]; // White background
+  container.strokes = [{ type: "SOLID", color: lineColor }];
+  container.strokeWeight = strokeWeight;
+  container.cornerRadius = 8;
+
+  // Set up auto layout
+  container.layoutMode = "HORIZONTAL";
+  container.paddingLeft = 8;
+  container.paddingRight = 8;
+  container.paddingTop = 8;
+  container.paddingBottom = 8;
+  container.primaryAxisSizingMode = "AUTO";
+  container.counterAxisSizingMode = "AUTO";
+
+  // Add text to container
+  container.appendChild(textNode);
+
+  // Add container to the page
+  figma.currentPage.appendChild(container);
+
+  // Position the container
+  const offset = 20;
+  container.x = nodeAbsBox.x + nodeAbsBox.width / 2 - container.width / 2;
+  container.y = nodeAbsBox.y + nodeAbsBox.height + offset;
+
+  // Create a line node and add it to the page
   const line = figma.createLine();
   figma.currentPage.appendChild(line);
 
-  const offset = 20;
-
-  // Get the anchor point on the node
+  // Get the anchor points
   const nodeAnchor = getAnchor(node, "bottom");
+  const containerAnchor = getAnchor(container, "top");
 
-  textNode.x = node.x + node.width / 2 - textNode.width / 2;
-  textNode.y = topParent.y + topParent.height + offset;
-
-  // Get the text node anchor point
-  const textAnchor = getAnchor(textNode, "top");
-
-  // Configure the line between the node and the text
-  configureLine(line, nodeAnchor, textAnchor, lineColor);
-
-  // Group the text and line together after positioning
-  // const group = figma.group([textNode, line], figma.currentPage);
-  // group.name = `Annotation for ${node.name}`;
+  // Configure the line between the node and the container
+  configureLine(line, nodeAnchor, containerAnchor, lineColor, strokeWeight);
 
   // Notify that annotation was added
+  // Check if there's a "Taffy Annotations" group in the current page
+  let annotationGroup = figma.currentPage.findOne(
+    (node) => node.type === "GROUP" && node.name === "Taffy Annotations"
+  ) as GroupNode;
+
+  // If the group doesn't exist, create it
+  if (!annotationGroup) {
+    annotationGroup = figma.group([container, line], figma.currentPage);
+    annotationGroup.name = "Taffy Annotations";
+  } else {
+    // If the group exists, add the container and line to it
+    annotationGroup.appendChild(container);
+    annotationGroup.appendChild(line);
+  }
 }
 
 /**
@@ -86,7 +112,8 @@ function configureLine(
   line: LineNode,
   start: { x: number; y: number },
   end: { x: number; y: number },
-  color: RGB
+  color: RGB,
+  strokeWeight: number
 ): void {
   console.log({ start, end });
 
@@ -105,7 +132,7 @@ function configureLine(
   line.resize(length, 0);
 
   // Style the line
-  line.strokeWeight = 1;
+  line.strokeWeight = strokeWeight;
   line.strokes = [{ type: "SOLID", color: color }];
 }
 
