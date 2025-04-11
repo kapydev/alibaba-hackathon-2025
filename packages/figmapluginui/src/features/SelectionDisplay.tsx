@@ -39,8 +39,8 @@ export function SelectionDisplay() {
     <TooltipProvider>
       <div
         className={cn(
-          "flex flex-row flex-wrap items-center gap-1 bg-transparent p-4 pb-0 transition-all duration-300 ease-in-out",
-          isExpanded ? "max-h-40 overflow-y-auto" : "overflow-hidden"
+          "flex flex-row flex-wrap items-center gap-1.5 p-3 pb-2 border-t border-border bg-background/80 backdrop-blur-sm transition-all duration-300 ease-in-out",
+          isExpanded ? "max-h-40 overflow-y-auto" : "max-h-16 overflow-hidden"
         )}
       >
         {displayLayers.map((layer) => (
@@ -48,7 +48,7 @@ export function SelectionDisplay() {
             <TooltipTrigger asChild>
               <Badge
                 variant="secondary"
-                className="max-w-24 flex-shrink-0 cursor-default"
+                className="max-w-28 flex-shrink-0 cursor-default shadow-sm hover:shadow-md transition-shadow"
               >
                 <span className="truncate overflow-hidden w-full block">
                   {layer.name}
@@ -56,7 +56,7 @@ export function SelectionDisplay() {
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              <p>
+              <p className="text-xs">
                 {layer.page} / {layer.name}
               </p>
             </TooltipContent>
@@ -66,10 +66,10 @@ export function SelectionDisplay() {
           <Button
             variant="link"
             size="sm"
-            className="text-xs h-auto p-0 ml-1 flex-shrink-0"
+            className="text-xs h-auto p-0 ml-1 flex-shrink-0 text-muted-foreground hover:text-primary"
             onClick={() => setIsExpanded(!isExpanded)}
           >
-            {isExpanded ? "Show less" : `View all (${selectedLayers.length})`}
+            {isExpanded ? "Show less" : `+${selectedLayers.length - MAX_BADGES_DISPLAYED_INITIAL} more`}
           </Button>
         )}
       </div>

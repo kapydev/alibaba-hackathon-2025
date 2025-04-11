@@ -113,6 +113,7 @@ export const TOOL_TEMPLATES = {
 export const NON_RENDERED_TOOLS: ToolType[] = [
   "USER_FIGMA_NODE_CONTENTS",
   "USER_TOOL_ERROR",
+  "ASSISTANT_CHANGE_COLOR",
 ];
 
 type ToolAction<ToolName extends ToolType> = (
