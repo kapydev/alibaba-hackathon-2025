@@ -19,6 +19,7 @@ import {
   resetChatStore,
   updateChatFull,
 } from "./stores/chatStore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function App() {
   // useHandleSelectionUpdate();
@@ -49,7 +50,7 @@ export default function App() {
 
   return (
     <TooltipProvider>
-      <div className="bg-background text-foreground h-screen flex flex-col">
+      <div className="bg-background text-foreground h-screen flex flex-col border-none rounded-none">
         {/* TITLEBAR */}
         <div className="space-y-1.5 p-4 border-b flex flex-row justify-between items-center">
           <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
@@ -101,6 +102,12 @@ export default function App() {
                 ) : (
                   <></>
                 )
+              )}
+              {/* Add Skeleton loader only when loading AND the last message isn't the assistant's response yet */}
+              {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+                <div className="flex justify-start">
+                  <Skeleton className="h-10 w-48 rounded-lg bg-background dark:bg-secondary/70" />
+                </div>
               )}
             </div>
           )}
