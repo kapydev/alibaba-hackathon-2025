@@ -84,11 +84,11 @@ export default function App() {
 
   return (
     <TooltipProvider>
-      <div className="bg-background text-foreground h-screen flex flex-col border-none rounded-none">
+      <div className="bg-background text-foreground h-screen flex flex-col">
         {/* TITLEBAR */}
-        <div className="space-y-1.5 p-4 border-b flex flex-row justify-between items-center">
+        <div className="space-y-1.5 p-3 border-b border-border/80 flex flex-row justify-between items-center bg-gradient-to-b from-background to-background/90 shadow-sm">
           <div className="font-semibold leading-none tracking-tight flex flex-row items-center gap-1.5">
-            <Candy className="ml-1" size={20} />
+            <Candy className="ml-1 text-primary" size={20} />
           </div>
           <div className="flex items-center space-x-2">
             <Tooltip>
@@ -123,17 +123,18 @@ export default function App() {
         </div>
 
         {/* MESSAGE AREA */}
-        <div className={`flex-1 p-4 overflow-y-auto`}>
+        <div className={`flex-1 p-4 overflow-y-auto bg-[url('/grid.svg')] dark:bg-[url('/grid-dark.svg')] bg-repeat`}>
           {messages.length === 1 ? (
             <div className="grid place-items-center h-full">
-               <div className="text-center space-y-4 flex flex-col items-center">
-                 <p className="text-muted-foreground">Select layers to add context or start with a suggestion:</p>
-                 <div className="flex flex-wrap justify-center items-center gap-2 max-w-2/3">
+               <div className="text-center space-y-4 flex flex-col items-center p-4">
+                 <p className="text-muted-foreground">Select layers or start with a suggestion:</p>
+                 <div className="flex flex-wrap justify-center items-center gap-2 max-w-md">
                     {SUGGESTIONS.map((suggestion) => (
                       <Button
                         key={suggestion}
                         variant="outline"
                         size="sm"
+                        className="hover:bg-primary/10 hover:border-primary/50 transition-colors"
                         onClick={() => handleSuggestionClick(suggestion)}
                         disabled={isLoadingChat}
                       >
@@ -152,10 +153,9 @@ export default function App() {
                   <></>
                 )
               )}
-              {/* Add Skeleton loader only when loading AND the last message isn't the assistant's response yet */}
               {isLoadingChat && messages[messages.length - 1]?.role !== "assistant" && (
-                <div className="flex justify-start">
-                  <Skeleton className="h-10 w-48 rounded-lg bg-background dark:bg-secondary/70" />
+                <div className="flex justify-start my-1">
+                  <Skeleton className="h-10 w-48 rounded-lg bg-card dark:bg-secondary shadow-sm" />
                 </div>
               )}
             </div>
@@ -164,23 +164,23 @@ export default function App() {
         </div>
 
         {/* FOOTER */}
-        <div className="flex flex-col">
+        <div className="flex flex-col border-t border-border/80">
           <SelectionDisplay />
           <form
             onSubmit={handleSubmit}
-            className="flex w-full gap-2 px-4 pt-3.5 pb-5"
+            className="flex w-full items-center gap-2 px-3 pt-3 pb-4 bg-gradient-to-t from-background to-background/90"
           >
             <Input
               value={input}
               onChange={handleInputChange}
-              placeholder="Send a message to start the conversation..."
-              className="flex-1"
+              placeholder="Ask Qwen about your design..."
+              className="flex-1 bg-background/80 focus:ring-primary/50 focus:border-primary/30"
               disabled={isLoadingChat}
             />
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button type="submit" size="icon" disabled={isLoadingChat}>
-                  <Send className="h-4 w-4" />
+                <Button type="submit" size="icon" disabled={isLoadingChat} variant="ghost" className="hover:bg-primary/10">
+                  <Send className="h-4 w-4 text-primary" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
